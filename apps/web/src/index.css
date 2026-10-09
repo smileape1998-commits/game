@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #090d16;
+    background-image: 
+      radial-gradient(circle at 50% 20%, rgba(30, 41, 59, 0.6) 0%, transparent 60%),
+      radial-gradient(circle at 80% 80%, rgba(120, 53, 15, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(30, 58, 138, 0.25) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: #f1f5f9;
+  }
+}
+
+/* Custom Fantasy Card & Table Styling */
+.card-frame {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid #d97706;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 0 0 15px rgba(217, 119, 6, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-frame:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: #f59e0b;
+  box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.8), 0 0 25px rgba(245, 158, 11, 0.4);
+}
+
+.gold-border {
+  border-image: linear-gradient(to bottom right, #fde047, #d97706, #78350f) 1;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #fef08a 0%, #facc15 50%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d97706;
+}
