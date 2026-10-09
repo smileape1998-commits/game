@@ -13,7 +13,8 @@ import {
   Plus,
   Sliders,
   CheckCircle2,
-  Clock
+  Clock,
+  Layers
 } from 'lucide-react';
 
 export const OnlineLobbyScreen: React.FC = () => {
@@ -24,7 +25,8 @@ export const OnlineLobbyScreen: React.FC = () => {
     toggleReady,
     addOnlineAI,
     startOnlineGame,
-    setShowRulesModal
+    setShowRulesModal,
+    setShowCardSelectionModal
   } = useGameStore();
 
   const [copied, setCopied] = useState(false);
@@ -61,17 +63,29 @@ export const OnlineLobbyScreen: React.FC = () => {
           <LogOut size={16} /> ออกจากห้อง
         </button>
 
-        {isHost && (
+        <div className="flex items-center gap-2">
           <button
             onClick={() => {
               sounds.playCardFlip();
-              setShowRulesModal(true);
+              setShowCardSelectionModal(true);
             }}
-            className="flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 bg-slate-900 border border-amber-600/50 px-3 py-1.5 rounded-xl shadow"
+            className="flex items-center gap-1.5 text-xs font-bold text-amber-300 hover:text-amber-200 bg-amber-950/60 border border-amber-600/70 px-3 py-1.5 rounded-xl shadow"
           >
-            <Sliders size={14} /> กติกาห้อง: {roomInfo.settings.preset.toUpperCase()}
+            <Layers size={14} /> เลือกการ์ด ({Object.values(roomInfo.settings.enabledRoles).filter(Boolean).length}/6)
           </button>
-        )}
+
+          {isHost && (
+            <button
+              onClick={() => {
+                sounds.playCardFlip();
+                setShowRulesModal(true);
+              }}
+              className="flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl shadow"
+            >
+              <Sliders size={14} /> กติกา
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Main Lobby Card */}

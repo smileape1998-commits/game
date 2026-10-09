@@ -62,6 +62,7 @@ export interface GameStoreState {
   // Modals & UI Flags
   showRulesModal: boolean;
   showHowToPlayModal: boolean;
+  showCardSelectionModal: boolean;
   showPassDeviceModal: boolean;
   passDeviceNextPlayerName: string;
 
@@ -71,6 +72,7 @@ export interface GameStoreState {
   setSettings: (settings: GameSettings) => void;
   setShowRulesModal: (show: boolean) => void;
   setShowHowToPlayModal: (show: boolean) => void;
+  setShowCardSelectionModal: (show: boolean) => void;
   dismissPassDeviceModal: () => void;
 
   // Game Starters
@@ -263,6 +265,7 @@ export const useGameStore = create<GameStoreState>((set, get) => {
     activeViewerPlayerId: 'player_human',
     showRulesModal: false,
     showHowToPlayModal: false,
+    showCardSelectionModal: false,
     showPassDeviceModal: false,
     passDeviceNextPlayerName: '',
 
@@ -271,6 +274,7 @@ export const useGameStore = create<GameStoreState>((set, get) => {
     setSettings: (settings) => set({ settings }),
     setShowRulesModal: (show) => set({ showRulesModal: show }),
     setShowHowToPlayModal: (show) => set({ showHowToPlayModal: show }),
+    setShowCardSelectionModal: (show) => set({ showCardSelectionModal: show }),
     dismissPassDeviceModal: () => set({ showPassDeviceModal: false }),
 
     startAIGame: (aiCount, personality, difficulty) => {

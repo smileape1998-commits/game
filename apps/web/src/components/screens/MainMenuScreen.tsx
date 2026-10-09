@@ -12,7 +12,8 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
-  Crown
+  Crown,
+  Layers
 } from 'lucide-react';
 
 export const MainMenuScreen: React.FC = () => {
@@ -20,8 +21,10 @@ export const MainMenuScreen: React.FC = () => {
     playerName,
     setPlayerProfile,
     setView,
+    settings,
     setShowRulesModal,
-    setShowHowToPlayModal
+    setShowHowToPlayModal,
+    setShowCardSelectionModal
   } = useGameStore();
 
   const [soundEnabled, setSoundEnabled] = useState(sounds.enabled);
@@ -80,6 +83,18 @@ export const MainMenuScreen: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              sounds.playCardFlip();
+              setShowCardSelectionModal(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/60 text-amber-300 font-bold text-xs transition shadow shadow-amber-950/40"
+            title="เลือกการ์ดเข้ากอง"
+          >
+            <Layers size={16} />
+            <span className="hidden sm:inline">เลือกการ์ด ({Object.values(settings.enabledRoles).filter(Boolean).length}/6)</span>
+            <span className="sm:hidden">การ์ด</span>
+          </button>
           <button
             onClick={() => {
               sounds.playCardFlip();

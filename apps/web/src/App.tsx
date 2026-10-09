@@ -8,6 +8,7 @@ import { OnlineLobbyScreen } from './components/screens/OnlineLobbyScreen';
 import { GameplayScreen } from './components/screens/GameplayScreen';
 import { RulesEditorModal } from './components/RulesEditorModal';
 import { HowToPlayModal } from './components/HowToPlayModal';
+import { CardSelectionModal } from './components/CardSelectionModal';
 
 export const App: React.FC = () => {
   const {
@@ -17,8 +18,22 @@ export const App: React.FC = () => {
     showRulesModal,
     setShowRulesModal,
     showHowToPlayModal,
-    setShowHowToPlayModal
+    setShowHowToPlayModal,
+    showCardSelectionModal,
+    setShowCardSelectionModal,
+    socket,
+    roomInfo,
+    activeViewerPlayerId
   } = useGameStore();
+
+  const isHost = !roomInfo || roomInfo.hostId === activeViewerPlayerId;
+
+  const handleSaveCardSelection = (newSettings: typeof settings) => {
+    setSettings(newSettings);
+    if (socket && roomInfo && isHost) {
+      socket.emit('room:settings', newSettings);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-['Prompt',sans-serif]">
@@ -28,6 +43,16 @@ export const App: React.FC = () => {
       {view === 'online_menu' && <OnlineMenuScreen />}
       {view === 'online_lobby' && <OnlineLobbyScreen />}
       {view === 'gameplay' && <GameplayScreen />}
+
+      {/* Global Card Selection Modal */}
+      {showCardSelectionModal && (
+        <CardSelectionModal
+          settings={settings}
+          onSave={handleSaveCardSelection}
+          onClose={() => setShowCardSelectionModal(false)}
+          isHost={isHost}
+        />
+      )}
 
       {/* Global Rules Modal */}
       {showRulesModal && (
