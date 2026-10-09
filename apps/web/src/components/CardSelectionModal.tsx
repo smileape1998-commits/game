@@ -8,6 +8,7 @@ import {
   PRESET_STANDARD
 } from '@hamster-coup/shared';
 import { sounds } from '../audio/soundEffects';
+import { CharacterArtwork } from './CharacterArtwork';
 import { X, Check, Layers, Sparkles, Info, Shield, Swords, Coins } from 'lucide-react';
 
 interface CardSelectionModalProps {
@@ -25,6 +26,7 @@ export const CardSelectionModal: React.FC<CardSelectionModalProps> = ({
 }) => {
   const [settings, setSettings] = useState<GameSettings>({ ...initialSettings });
   const [activePreviewRole, setActivePreviewRole] = useState<CharacterRole>('duke');
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   const toggleRole = (role: CharacterRole) => {
     if (!isHost) return;
@@ -164,15 +166,20 @@ export const CardSelectionModal: React.FC<CardSelectionModalProps> = ({
                 >
                   {/* Card Art Image */}
                   <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-950 flex items-center justify-center">
-                    <img
-                      src={def.image}
-                      alt={def.nameTh}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      onError={(e) => {
-                        // Fallback if image path not resolved
-                        (e.target as HTMLElement).style.display = 'none';
-                      }}
-                    />
+                    {!failedImages[role] ? (
+                      <img
+                        src={def.image}
+                        alt={def.nameTh}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        onError={() => {
+                          setFailedImages((prev) => ({ ...prev, [role]: true }));
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 p-4">
+                        <CharacterArtwork role={role} size={80} />
+                      </div>
+                    )}
 
                     {/* Enable / Disable Checkbox Toggle in top-right */}
                     {isHost && (
@@ -226,12 +233,21 @@ export const CardSelectionModal: React.FC<CardSelectionModalProps> = ({
           <div className="lg:col-span-5 bg-slate-950/80 border border-slate-800 rounded-3xl p-4 sm:p-5 flex flex-col justify-between">
             <div>
               {/* Selected Card Portrait Preview */}
-              <div className="relative w-full aspect-[2/3] max-h-56 mx-auto rounded-2xl overflow-hidden border-2 border-amber-500 shadow-2xl mb-4 bg-slate-950">
-                <img
-                  src={activeDef.image}
-                  alt={activeDef.nameTh}
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative w-full aspect-[2/3] max-h-56 mx-auto rounded-2xl overflow-hidden border-2 border-amber-500 shadow-2xl mb-4 bg-slate-950 flex items-center justify-center">
+                {!failedImages[activePreviewRole] ? (
+                  <img
+                    src={activeDef.image}
+                    alt={activeDef.nameTh}
+                    className="w-full h-full object-cover"
+                    onError={() => {
+                      setFailedImages((prev) => ({ ...prev, [activePreviewRole]: true }));
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 p-6">
+                    <CharacterArtwork role={activePreviewRole} size={110} />
+                  </div>
+                )}
               </div>
 
               {/* Character Details */}
