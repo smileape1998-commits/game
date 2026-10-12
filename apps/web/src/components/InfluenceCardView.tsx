@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { InfluenceCard, CHARACTERS } from '@hamster-coup/shared';
 import { CharacterArtwork, GoldenAcornIcon } from './CharacterArtwork';
 import { Sparkles, Eye } from 'lucide-react';
+import { IdlePortrait } from './AnimatedPortrait';
 
 interface CardViewProps {
   card?: InfluenceCard;
@@ -111,12 +112,14 @@ export const InfluenceCardView: React.FC<CardViewProps> = ({
       {/* If official image is available and not errored, render authentic card image */}
       {!imgError ? (
         <div className="relative w-full h-full flex flex-col justify-between">
+          <IdlePortrait active={!isRevealedLost} className="absolute -inset-1">
           <img
             src={def.image}
             alt={def.nameTh}
             className="absolute inset-0 w-full h-full object-cover"
             onError={handleImgError}
           />
+          </IdlePortrait>
 
           {/* Semi-transparent ability overlay strip at bottom for quick reading */}
           <div className="relative mt-auto bg-slate-950/85 backdrop-blur-[2px] border-t border-amber-500/40 px-1 py-1 text-center">
@@ -143,7 +146,9 @@ export const InfluenceCardView: React.FC<CardViewProps> = ({
           </div>
 
           <div className="flex-1 flex items-center justify-center my-1">
-            <CharacterArtwork role={card.role} size={size === 'sm' ? 50 : 75} />
+            <IdlePortrait active={!isRevealedLost}>
+              <CharacterArtwork role={card.role} size={size === 'sm' ? 50 : 75} />
+            </IdlePortrait>
           </div>
 
           <div className="bg-slate-900/80 border border-slate-800 rounded p-1 text-[9px] text-amber-300 text-center truncate">

@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Breathing belongs to the illustration, never to the card's text or hit area. */
+.portrait-idle {
+  transform-origin: 50% 85%;
+}
+.portrait-idle[data-active='true'] {
+  animation: portrait-breath 2.8s ease-in-out infinite;
+}
+@keyframes portrait-breath {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-1px) scaleY(1.009); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portrait-idle[data-active='true'] { animation: none; }
+}
+
 @layer base {
   body {
     background-color: #090d16;

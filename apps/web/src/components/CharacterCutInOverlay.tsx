@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { CharacterRole, CHARACTERS, PublicGameState } from '@hamster-coup/shared';
 import { sounds } from '../audio/soundEffects';
+import { WalkingPortrait } from './AnimatedPortrait';
 import {
   Sparkles,
   Zap,
@@ -91,7 +92,9 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
   publicGameState,
   activeViewerPlayerId
 }) => {
-  const [currentCutIn, setCurrentCutIn] = useState<CutInEvent | null>(null);
+  const [currentCutIn, setCurrentCutIn] = useState<(CutInEvent & { scope: string }) | null>(null);
+  const reducedMotion = useReducedMotion();
+  const scope = `${publicGameState.id}:${activeViewerPlayerId}:${publicGameState.turnCount}`;
   const lastProcessedEventId = useRef<string | null>(null);
   const isModalPhase =
     publicGameState.phase === 'CHALLENGE_WINDOW' ||
@@ -102,20 +105,20 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
     publicGameState.phase === 'INSPECT_CARD_VIEW' ||
     publicGameState.phase === 'GAME_OVER';
 
-  // Dismiss immediately whenever any modal phase begins
+  // A cut-in never survives a modal, turn, viewer handoff or game replacement.
   useEffect(() => {
-    if (isModalPhase && currentCutIn) {
+    if (currentCutIn && (isModalPhase || currentCutIn.scope !== scope)) {
       setCurrentCutIn(null);
     }
-  }, [isModalPhase, currentCutIn]);
+  }, [isModalPhase, currentCutIn, scope]);
 
   // 1. Detect new action from history (only when not in modal phase)
   useEffect(() => {
-    if (isModalPhase) return;
-
     const latestEvent = publicGameState.history[0];
     if (!latestEvent || latestEvent.id === lastProcessedEventId.current) return;
     lastProcessedEventId.current = latestEvent.id;
+    // Consume suppressed events so closing a modal cannot replay an old action.
+    if (isModalPhase) return;
 
     const text = (latestEvent.messageTh || '').toLowerCase();
     const actor = latestEvent.actorId ? publicGameState.players[latestEvent.actorId]?.name : 'ผู้เล่น';
@@ -177,7 +180,8 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
 
     if (role) {
       const data = ROLE_CUTIN_DATA[role];
-      const cutIn: CutInEvent = {
+      const cutIn: CutInEvent & { scope: string } = {
+        scope,
         id: `${latestEvent.id}_cutin`,
         role,
         actorName: actor,
@@ -198,7 +202,7 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
 
       setCurrentCutIn(cutIn);
     }
-  }, [publicGameState.history, publicGameState.players]);
+  }, [publicGameState.history, publicGameState.players, isModalPhase, scope]);
 
   // 2. Guaranteed Auto-Dismiss Timer tied ONLY to currentCutIn
   useEffect(() => {
@@ -211,8 +215,15 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
 
   return (
     <AnimatePresence>
-      {!isModalPhase && currentCutIn && (
-        <div className="fixed inset-0 pointer-events-none z-30 flex items-center justify-center overflow-hidden select-none">
+      {!isModalPhase && currentCutIn && currentCutIn.scope === scope && (
+        <motion.div
+          key="character-cut-in"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reducedMotion ? 0 : 0.1 }}
+          className="fixed inset-0 pointer-events-none z-30 flex items-center justify-center overflow-hidden select-none"
+        >
         {/* Subtle Speed Lines (non-blocking) */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -228,11 +239,9 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
 
         {/* 2.5D Diagonal Cut-In Stage */}
         <motion.div
-          key={currentCutIn.id}
-          initial={{ x: '-110%', skewX: -10, opacity: 0 }}
+          initial={{ skewX: -10, opacity: 0 }}
           animate={{ x: '0%', skewX: -10, opacity: 1 }}
-          exit={{ x: '110%', skewX: -10, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+          transition={{ duration: reducedMotion ? 0 : 0.12 }}
           className="relative w-full max-w-4xl h-56 sm:h-64 my-auto pointer-events-auto cursor-pointer"
           onClick={() => setCurrentCutIn(null)}
           title="คลิกเพื่อข้าม"
@@ -285,17 +294,15 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
                 {/* Glow Ring */}
                 <motion.div
                   initial={{ scale: 0.7, opacity: 0 }}
-                  animate={{ scale: [1, 1.15, 1], opacity: 1 }}
-                  transition={{ repeat: Infinity, duration: 1.6 }}
+                  animate={{ scale: reducedMotion ? 1 : [1, 1.15, 1], opacity: 1 }}
+                  transition={{ repeat: reducedMotion ? 0 : Infinity, duration: reducedMotion ? 0 : 1.6 }}
                   className="absolute w-48 sm:w-60 h-48 sm:h-60 rounded-full blur-xl pointer-events-none"
                   style={{ backgroundColor: `${currentCutIn.themeAccent}50` }}
                 />
 
                 {/* Character Cutout Card Frame */}
-                <motion.div
-                  initial={{ scale: 0.7, y: 25, rotateZ: 6 }}
-                  animate={{ scale: 1.1, y: -4, rotateZ: -2 }}
-                  transition={{ type: 'spring', stiffness: 380, damping: 20 }}
+                <WalkingPortrait
+                  requestId={currentCutIn.id}
                   className="relative w-36 sm:w-48 h-48 sm:h-60 rounded-3xl overflow-hidden border-4 border-amber-300 shadow-[0_15px_40px_rgba(0,0,0,0.8)] bg-slate-900 group"
                 >
                   <img
@@ -305,11 +312,11 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-white/10 pointer-events-none" />
                   <div className="card-foil-sheen" />
-                </motion.div>
+                </WalkingPortrait>
               </div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
