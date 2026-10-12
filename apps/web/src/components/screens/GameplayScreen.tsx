@@ -53,6 +53,8 @@ export const GameplayScreen: React.FC = () => {
   } = useGameStore();
 
   const [soundEnabled, setSoundEnabled] = useState(sounds.enabled);
+  const [floatingCoin, setFloatingCoin] = useState<{ amount: number; id: number } | null>(null);
+  const prevAcornsRef = React.useRef<number | undefined>(undefined);
 
   const toggleSound = () => {
     sounds.enabled = !soundEnabled;
@@ -91,6 +93,20 @@ export const GameplayScreen: React.FC = () => {
   } else if (state.phase === 'BLOCK_CHALLENGE_WINDOW') {
     isEligibleToRespond = state.currentBlock?.blockerId !== activeViewerPlayerId && !!me?.isAlive;
   }
+
+  // Acorn transaction animation trigger
+  React.useEffect(() => {
+    if (me) {
+      if (prevAcornsRef.current !== undefined && me.acorns !== prevAcornsRef.current) {
+        const diff = me.acorns - prevAcornsRef.current;
+        if (diff !== 0) {
+          setFloatingCoin({ amount: diff, id: Date.now() });
+          setTimeout(() => setFloatingCoin(null), 1800);
+        }
+      }
+      prevAcornsRef.current = me.acorns;
+    }
+  }, [me?.acorns]);
 
   const hasPassed = state.passedPlayerIds.includes(activeViewerPlayerId);
 
@@ -211,10 +227,31 @@ export const GameplayScreen: React.FC = () => {
 
             <div className="h-4 w-px bg-slate-800" />
 
-            <div className="flex items-center gap-1.5 font-black text-amber-400 text-base">
+            <div className="flex items-center gap-1.5 font-black text-amber-400 text-base relative">
               <GoldenAcornIcon size={22} />
               <span>{me?.acorns || 0}</span>
               <span className="text-[11px] font-semibold text-slate-400 ml-1">ลูกโอ๊กทองคำ</span>
+
+              {/* Floating Coin Gain/Loss Animation Badge */}
+              <AnimatePresence>
+                {floatingCoin && (
+                  <motion.div
+                    key={floatingCoin.id}
+                    initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, y: -26, scale: 1.15 }}
+                    exit={{ opacity: 0, y: -42, scale: 0.8 }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                    className={`absolute -top-3 right-0 font-black text-xs px-2.5 py-0.5 rounded-full shadow-lg flex items-center gap-1 pointer-events-none z-30 ${
+                      floatingCoin.amount > 0
+                        ? 'bg-amber-400 text-slate-950 shadow-amber-400/50'
+                        : 'bg-red-500 text-white shadow-red-500/50'
+                    }`}
+                  >
+                    <span>{floatingCoin.amount > 0 ? `+${floatingCoin.amount}` : floatingCoin.amount}</span>
+                    <GoldenAcornIcon size={12} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 

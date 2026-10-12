@@ -102,11 +102,19 @@ export const OnlineLobbyScreen: React.FC = () => {
       <div className="max-w-4xl w-full mx-auto my-auto py-6 sm:py-8 z-10 space-y-8">
         {/* Emblem & Title Header */}
         <div className="text-center space-y-2">
-          {/* Circular Crown Medallion */}
-          <div className="w-16 h-16 rounded-full bg-amber-950/60 border-2 border-amber-500/50 mx-auto flex items-center justify-center text-2xl shadow-xl shadow-amber-950/50 relative">
+          {/* Circular Crown Medallion with Gentle Floating Animation */}
+          <motion.div
+            animate={{ y: [-3, 3, -3] }}
+            transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+            className="w-16 h-16 rounded-full bg-amber-950/60 border-2 border-amber-500/50 mx-auto flex items-center justify-center text-2xl shadow-xl shadow-amber-950/50 relative"
+          >
             <span className="text-amber-400">👑</span>
-            <div className="absolute inset-0 rounded-full border border-amber-500/20 scale-125 pointer-events-none" />
-          </div>
+            <motion.div
+              animate={{ scale: [1.2, 1.35, 1.2], opacity: [0.25, 0.5, 0.25] }}
+              transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
+              className="absolute inset-0 rounded-full border border-amber-500/30 pointer-events-none"
+            />
+          </motion.div>
 
           <div className="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase pt-1">
             A GAME OF BLUFF, POWER & TINY PAWS
@@ -203,14 +211,19 @@ export const OnlineLobbyScreen: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    {/* Ready status */}
-                    <div className="flex items-center gap-1.5 text-xs font-bold">
-                      <span
-                        className={`w-2 h-2 rounded-full ${
-                          isReady ? 'bg-emerald-400 shadow-sm shadow-emerald-400/80 animate-pulse' : 'bg-slate-600'
-                        }`}
-                      />
-                      <span className={isReady ? 'text-emerald-400' : 'text-slate-400'}>
+                    {/* Ready status with Ping Radar Animation */}
+                    <div className="flex items-center gap-2 text-xs font-bold">
+                      <div className="relative flex items-center justify-center">
+                        <span
+                          className={`w-2.5 h-2.5 rounded-full ${
+                            isReady ? 'bg-emerald-400' : 'bg-slate-600'
+                          }`}
+                        />
+                        {isReady && (
+                          <span className="absolute w-4 h-4 rounded-full bg-emerald-400/50 animate-ping" />
+                        )}
+                      </div>
+                      <span className={isReady ? 'text-emerald-400 font-extrabold' : 'text-slate-400'}>
                         {isReady ? 'Ready' : 'Waiting'}
                       </span>
                     </div>
@@ -274,13 +287,15 @@ export const OnlineLobbyScreen: React.FC = () => {
           </button>
 
           {isHost ? (
-            <button
+            <motion.button
               disabled={!canStart}
+              whileHover={canStart ? { scale: 1.03, boxShadow: '0 0 35px rgba(245, 158, 11, 0.45)' } : {}}
+              whileTap={canStart ? { scale: 0.97 } : {}}
               onClick={() => {
                 sounds.playCardFlip();
                 startOnlineGame();
               }}
-              className={`w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2.5 transition shadow-xl ${
+              className={`btn-shimmer-container w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2.5 transition shadow-xl ${
                 canStart
                   ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-amber-500/20 cursor-pointer'
                   : 'bg-slate-800/80 border border-slate-700/60 text-slate-400 cursor-not-allowed'
@@ -289,14 +304,16 @@ export const OnlineLobbyScreen: React.FC = () => {
               <Crown size={18} />
               <span>START MATCH</span>
               <ArrowRight size={16} />
-            </button>
+            </motion.button>
           ) : (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => {
                 sounds.playCoin();
                 toggleReady();
               }}
-              className={`w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition shadow-xl ${
+              className={`btn-shimmer-container w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition shadow-xl ${
                 me?.isReady
                   ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20'
                   : 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-amber-500/20'
@@ -313,7 +330,7 @@ export const OnlineLobbyScreen: React.FC = () => {
                   <span>READY TO PLAY</span>
                 </>
               )}
-            </button>
+            </motion.button>
           )}
         </div>
 

@@ -272,10 +272,10 @@ export const MainMenuScreen: React.FC = () => {
                     {/* Primary CTA Button */}
                     <div className="pt-2">
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.03, boxShadow: '0 0 35px rgba(245, 158, 11, 0.45)' }}
+                        whileTap={{ scale: 0.97 }}
                         onClick={() => selectTab('play')}
-                        className="bg-gradient-to-r from-amber-400 via-amber-500 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-base px-8 py-4 rounded-2xl shadow-xl shadow-amber-500/20 flex items-center gap-3 transition"
+                        className="btn-shimmer-container bg-gradient-to-r from-amber-400 via-amber-500 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-base px-8 py-4 rounded-2xl shadow-xl shadow-amber-500/20 flex items-center gap-3 transition"
                       >
                         <Swords size={20} className="text-slate-950" />
                         <span>Enter the court</span>
@@ -292,18 +292,26 @@ export const MainMenuScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* 3D Tilted Card Preview Display with Golden Ring */}
+                  {/* 3D Tilted Card Preview Display with Animated Golden Rings & Floating Sway */}
                   <div className="lg:col-span-5 flex justify-center items-center py-6">
                     <div className="relative w-72 h-80 flex items-center justify-center">
-                      {/* Ambient Golden Glowing Ring */}
-                      <div className="absolute inset-0 m-auto w-64 h-64 rounded-full border border-amber-500/30 bg-amber-500/5 blur-sm" />
-                      <div className="absolute inset-0 m-auto w-52 h-52 rounded-full border border-amber-500/20" />
-
-                      {/* Card 1: Duke (Tilted Left) */}
+                      {/* Ambient Golden Glowing Rings with Breathing Pulse */}
                       <motion.div
-                        initial={{ rotate: -8, y: 10 }}
-                        animate={{ rotate: -8, y: 0 }}
-                        whileHover={{ rotate: -4, scale: 1.04, zIndex: 10 }}
+                        animate={{ scale: [1, 1.08, 1], opacity: [0.25, 0.5, 0.25] }}
+                        transition={{ repeat: Infinity, duration: 4.5, ease: 'easeInOut' }}
+                        className="absolute inset-0 m-auto w-64 h-64 rounded-full border border-amber-500/40 bg-amber-500/10 blur-sm pointer-events-none"
+                      />
+                      <motion.div
+                        animate={{ scale: [1.06, 0.96, 1.06], opacity: [0.15, 0.35, 0.15] }}
+                        transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
+                        className="absolute inset-0 m-auto w-52 h-52 rounded-full border border-amber-500/30 pointer-events-none"
+                      />
+
+                      {/* Card 1: Duke (Tilted Left + Continuous gentle sway) */}
+                      <motion.div
+                        animate={{ rotate: [-9, -7, -9], y: [-4, 6, -4] }}
+                        transition={{ repeat: Infinity, duration: 4.8, ease: 'easeInOut' }}
+                        whileHover={{ rotate: -3, scale: 1.08, y: -8, zIndex: 20 }}
                         className="absolute left-4 top-4 w-44 h-64 rounded-2xl bg-[#141C2B] border border-amber-500/40 p-4 shadow-2xl flex flex-col justify-between cursor-pointer"
                         onClick={() => selectTab('cards')}
                       >
@@ -325,11 +333,11 @@ export const MainMenuScreen: React.FC = () => {
                         </div>
                       </motion.div>
 
-                      {/* Card 2: Captain (Tilted Right) */}
+                      {/* Card 2: Captain (Tilted Right + Continuous gentle sway) */}
                       <motion.div
-                        initial={{ rotate: 10, y: -5 }}
-                        animate={{ rotate: 10, y: 0 }}
-                        whileHover={{ rotate: 4, scale: 1.04, zIndex: 10 }}
+                        animate={{ rotate: [11, 9, 11], y: [6, -4, 6] }}
+                        transition={{ repeat: Infinity, duration: 5.2, ease: 'easeInOut' }}
+                        whileHover={{ rotate: 3, scale: 1.08, y: -8, zIndex: 20 }}
                         className="absolute right-4 top-8 w-44 h-64 rounded-2xl bg-[#101724] border border-sky-500/40 p-4 shadow-2xl flex flex-col justify-between cursor-pointer"
                         onClick={() => selectTab('cards')}
                       >
@@ -352,9 +360,13 @@ export const MainMenuScreen: React.FC = () => {
                       </motion.div>
 
                       {/* Pill Badge at bottom of preview */}
-                      <div className="absolute -bottom-2 bg-slate-900/90 border border-amber-500/50 rounded-full px-3 py-1 text-[10px] font-black tracking-widest text-amber-300 uppercase shadow-lg backdrop-blur-sm z-10">
+                      <motion.div
+                        animate={{ y: [-2, 2, -2] }}
+                        transition={{ repeat: Infinity, duration: 3.8, ease: 'easeInOut' }}
+                        className="absolute -bottom-2 bg-slate-900/90 border border-amber-500/50 rounded-full px-3 py-1 text-[10px] font-black tracking-widest text-amber-300 uppercase shadow-lg backdrop-blur-sm z-10"
+                      >
                         FORTUNE FAVORS THE BOLD
-                      </div>
+                      </motion.div>
                     </div>
                   </div>
                 </div>
@@ -367,7 +379,10 @@ export const MainMenuScreen: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
                     {/* Card 1: Gather your court */}
-                    <div
+                    <motion.div
+                      whileHover={{ y: -6, scale: 1.015 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                       onClick={() => selectTab('play')}
                       className="bg-[#101622] hover:bg-[#151D2C] border border-slate-800 hover:border-amber-500/50 rounded-3xl p-6 transition flex flex-col justify-between group cursor-pointer shadow-sm"
                     >
@@ -382,14 +397,17 @@ export const MainMenuScreen: React.FC = () => {
                           Bring your friends to a custom table or fill empty seats with cunning AI nobles.
                         </p>
                       </div>
-                      <div className="mt-6 flex items-center gap-1 text-xs font-bold text-amber-400 group-hover:translate-x-1 transition">
+                      <div className="mt-6 flex items-center gap-1 text-xs font-bold text-amber-400 group-hover:translate-x-1.5 transition">
                         <span>Explore play modes</span>
                         <ChevronRight size={14} />
                       </div>
-                    </div>
+                    </motion.div>
 
                     {/* Card 2: Meet the nobles */}
-                    <div
+                    <motion.div
+                      whileHover={{ y: -6, scale: 1.015 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                       onClick={() => selectTab('cards')}
                       className="bg-[#101622] hover:bg-[#151D2C] border border-slate-800 hover:border-amber-500/50 rounded-3xl p-6 transition flex flex-col justify-between group cursor-pointer shadow-sm"
                     >
@@ -404,14 +422,17 @@ export const MainMenuScreen: React.FC = () => {
                           Master the unique powers of the Duke, Assassin, Captain, Ambassador, and Contessa.
                         </p>
                       </div>
-                      <div className="mt-6 flex items-center gap-1 text-xs font-bold text-purple-400 group-hover:translate-x-1 transition">
+                      <div className="mt-6 flex items-center gap-1 text-xs font-bold text-purple-400 group-hover:translate-x-1.5 transition">
                         <span>View cards</span>
                         <ChevronRight size={14} />
                       </div>
-                    </div>
+                    </motion.div>
 
                     {/* Card 3: Learn the art of bluffing */}
-                    <div
+                    <motion.div
+                      whileHover={{ y: -6, scale: 1.015 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                       onClick={() => selectTab('rules')}
                       className="bg-[#101622] hover:bg-[#151D2C] border border-slate-800 hover:border-amber-500/50 rounded-3xl p-6 transition flex flex-col justify-between group cursor-pointer shadow-sm"
                     >
@@ -426,11 +447,11 @@ export const MainMenuScreen: React.FC = () => {
                           Claim roles you don't possess, block greedy rivals, and strike before they suspect.
                         </p>
                       </div>
-                      <div className="mt-6 flex items-center gap-1 text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition">
+                      <div className="mt-6 flex items-center gap-1 text-xs font-bold text-emerald-400 group-hover:translate-x-1.5 transition">
                         <span>Read guide</span>
                         <ChevronRight size={14} />
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
                 </div>
               </motion.div>
