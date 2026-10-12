@@ -25,7 +25,8 @@ import {
   Repeat,
   ShieldCheck,
   Check,
-  Edit2
+  Edit2,
+  Search
 } from 'lucide-react';
 
 type MainMenuTab = 'home' | 'play' | 'cards' | 'rules' | 'settings';
@@ -67,9 +68,19 @@ export const MainMenuScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0B0E14] text-slate-100 flex flex-col justify-between selection:bg-amber-500/30 select-none relative overflow-x-hidden font-sans">
-      {/* Background Subtle Ambient Aura */}
-      <div className="fixed top-0 right-1/4 w-[600px] h-[600px] bg-amber-500/[0.03] rounded-full blur-[140px] pointer-events-none" />
-      <div className="fixed bottom-0 left-10 w-[500px] h-[500px] bg-blue-500/[0.02] rounded-full blur-[140px] pointer-events-none" />
+      {/* Background Subtle Ambient Aura (GPU friendly radial gradients without heavy blur filters) */}
+      <div
+        className="fixed top-0 right-1/4 w-[500px] h-[500px] pointer-events-none opacity-40"
+        style={{
+          background: 'radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%)'
+        }}
+      />
+      <div
+        className="fixed bottom-0 left-10 w-[450px] h-[450px] pointer-events-none opacity-30"
+        style={{
+          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%)'
+        }}
+      />
 
       {/* Top Header Bar */}
       <header className="border-b border-slate-800/80 bg-[#0D121C]/90 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between z-20 sticky top-0">
@@ -295,69 +306,59 @@ export const MainMenuScreen: React.FC = () => {
                   {/* 3D Tilted Card Preview Display with Animated Golden Rings & Floating Sway */}
                   <div className="lg:col-span-5 flex justify-center items-center py-6">
                     <div className="relative w-72 h-80 flex items-center justify-center">
-                      {/* Ambient Golden Glowing Rings with Breathing Pulse */}
-                      <motion.div
-                        animate={{ scale: [1, 1.08, 1], opacity: [0.25, 0.5, 0.25] }}
-                        transition={{ repeat: Infinity, duration: 4.5, ease: 'easeInOut' }}
-                        className="absolute inset-0 m-auto w-64 h-64 rounded-full border border-amber-500/40 bg-amber-500/10 blur-sm pointer-events-none"
-                      />
-                      <motion.div
-                        animate={{ scale: [1.06, 0.96, 1.06], opacity: [0.15, 0.35, 0.15] }}
-                        transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-                        className="absolute inset-0 m-auto w-52 h-52 rounded-full border border-amber-500/30 pointer-events-none"
-                      />
+                      {/* Ambient Golden Glowing Rings with GPU Keyframe Pulse */}
+                      <div className="absolute inset-0 m-auto w-64 h-64 rounded-full border border-amber-500/40 bg-amber-500/10 animate-hero-ring-1 pointer-events-none" />
+                      <div className="absolute inset-0 m-auto w-52 h-52 rounded-full border border-amber-500/30 animate-hero-ring-2 pointer-events-none" />
 
-                      {/* Card 1: Duke (Tilted Left + Continuous gentle sway) */}
-                      <motion.div
-                        animate={{ rotate: [-9, -7, -9], y: [-4, 6, -4] }}
-                        transition={{ repeat: Infinity, duration: 4.8, ease: 'easeInOut' }}
-                        whileHover={{ rotate: -3, scale: 1.08, y: -8, zIndex: 20 }}
-                        className="absolute left-4 top-4 w-44 h-64 rounded-2xl bg-[#141C2B] border border-amber-500/40 p-4 shadow-2xl flex flex-col justify-between cursor-pointer"
+                      {/* Card 1: Duke (Tilted Left + GPU Compositor Float) */}
+                      <div
+                        className="absolute left-4 top-4 w-44 h-64 rounded-2xl bg-[#141C2B] border border-amber-500/50 p-3.5 shadow-2xl flex flex-col justify-between cursor-pointer animate-hero-sway-left group hover:scale-105 hover:z-20 transition-transform duration-300"
                         onClick={() => selectTab('cards')}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-2xl font-black text-amber-400/80">D</span>
+                          <span className="text-xl font-black text-amber-400/90">D</span>
                           <Crown size={16} className="text-amber-400" />
                         </div>
-                        <div className="flex flex-col items-center my-auto">
-                          <div className="w-20 h-20 rounded-full bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-3xl shadow-inner">
-                            🐹
-                          </div>
+                        <div className="relative w-24 h-24 mx-auto my-auto rounded-full overflow-hidden border-2 border-amber-500/50 shadow-inner bg-amber-950/60 group-hover:scale-105 transition-transform duration-300">
+                          <img
+                            src="/cards/duke.jpg"
+                            alt="The Duke"
+                            className="w-full h-full object-cover object-top"
+                          />
                         </div>
                         <div>
                           <div className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
                             TAX
                           </div>
-                          <div className="text-base font-black text-white">Duke</div>
-                          <div className="text-[10px] text-slate-400 truncate">Take 3 acorns</div>
+                          <div className="text-sm font-black text-white">Duke</div>
+                          <div className="text-[10px] text-slate-400 truncate">Take 3 acorns (เก็บภาษี)</div>
                         </div>
-                      </motion.div>
+                      </div>
 
-                      {/* Card 2: Captain (Tilted Right + Continuous gentle sway) */}
-                      <motion.div
-                        animate={{ rotate: [11, 9, 11], y: [6, -4, 6] }}
-                        transition={{ repeat: Infinity, duration: 5.2, ease: 'easeInOut' }}
-                        whileHover={{ rotate: 3, scale: 1.08, y: -8, zIndex: 20 }}
-                        className="absolute right-4 top-8 w-44 h-64 rounded-2xl bg-[#101724] border border-sky-500/40 p-4 shadow-2xl flex flex-col justify-between cursor-pointer"
+                      {/* Card 2: Captain (Tilted Right + GPU Compositor Float) */}
+                      <div
+                        className="absolute right-4 top-8 w-44 h-64 rounded-2xl bg-[#101724] border border-sky-500/50 p-3.5 shadow-2xl flex flex-col justify-between cursor-pointer animate-hero-sway-right group hover:scale-105 hover:z-20 transition-transform duration-300"
                         onClick={() => selectTab('cards')}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-2xl font-black text-sky-400/80">C</span>
+                          <span className="text-xl font-black text-sky-400/90">C</span>
                           <Swords size={16} className="text-sky-400" />
                         </div>
-                        <div className="flex flex-col items-center my-auto">
-                          <div className="w-20 h-20 rounded-full bg-sky-950/60 border border-sky-500/40 flex items-center justify-center text-3xl shadow-inner">
-                            🦫
-                          </div>
+                        <div className="relative w-24 h-24 mx-auto my-auto rounded-full overflow-hidden border-2 border-sky-500/50 shadow-inner bg-sky-950/60 group-hover:scale-105 transition-transform duration-300">
+                          <img
+                            src="/cards/captain.jpg"
+                            alt="The Captain"
+                            className="w-full h-full object-cover object-top"
+                          />
                         </div>
                         <div>
                           <div className="text-[10px] font-black text-sky-400 uppercase tracking-widest">
                             STEAL
                           </div>
-                          <div className="text-base font-black text-white">Captain</div>
-                          <div className="text-[10px] text-slate-400 truncate">Steal 2 acorns</div>
+                          <div className="text-sm font-black text-white">Captain</div>
+                          <div className="text-[10px] text-slate-400 truncate">Steal 2 acorns (ปล้นเหรียญ)</div>
                         </div>
-                      </motion.div>
+                      </div>
 
                       {/* Pill Badge at bottom of preview */}
                       <motion.div
@@ -602,25 +603,33 @@ export const MainMenuScreen: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 pt-2">
                   {/* 1. Duke */}
-                  <div className="bg-[#101622] border border-amber-500/30 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-amber-500/60 transition shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-amber-500/10 pointer-events-none">
+                  <div className="bg-[#101622] border border-amber-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-amber-500/70 hover:shadow-glow-gold transition-all duration-300 shadow-sm">
+                    <span className="absolute -right-2 -top-4 text-7xl font-black text-amber-500/10 pointer-events-none select-none">
                       D
                     </span>
-                    <div className="flex items-center justify-between mb-4 z-10">
+                    <div className="flex items-center justify-between mb-2 z-10">
                       <span className="text-xs font-black text-amber-400 tracking-widest uppercase">
                         TAX
                       </span>
                       <Crown size={18} className="text-amber-400" />
                     </div>
-                    <div className="flex flex-col items-center my-4 z-10">
-                      <div className="w-20 h-20 rounded-full bg-amber-950/50 border border-amber-500/40 flex items-center justify-center text-4xl shadow-inner group-hover:scale-105 transition">
-                        👑
-                      </div>
+
+                    {/* Authentic Character Portrait */}
+                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-lg bg-amber-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-amber-400 transition-all duration-300">
+                      <img
+                        src="/cards/duke.jpg"
+                        alt="The Duke"
+                        className="w-full h-full object-cover object-top"
+                      />
                     </div>
-                    <div className="z-10">
-                      <h4 className="text-xl font-black text-white">Duke</h4>
+
+                    <div className="z-10 mt-1">
+                      <div className="flex items-baseline justify-between">
+                        <h4 className="text-lg font-black text-white">Duke</h4>
+                        <span className="text-xs font-bold text-amber-400">เจ้าพระยา</span>
+                      </div>
                       <p className="text-[11px] text-amber-300/80 font-semibold mb-2">
                         Power favors the prepared.
                       </p>
@@ -638,98 +647,122 @@ export const MainMenuScreen: React.FC = () => {
                   </div>
 
                   {/* 2. Captain */}
-                  <div className="bg-[#101622] border border-sky-500/30 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-sky-500/60 transition shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-sky-500/10 pointer-events-none">
+                  <div className="bg-[#101622] border border-sky-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-sky-500/70 hover:shadow-[0_0_20px_rgba(6,182,212,0.35)] transition-all duration-300 shadow-sm">
+                    <span className="absolute -right-2 -top-4 text-7xl font-black text-sky-500/10 pointer-events-none select-none">
                       C
                     </span>
-                    <div className="flex items-center justify-between mb-4 z-10">
+                    <div className="flex items-center justify-between mb-2 z-10">
                       <span className="text-xs font-black text-sky-400 tracking-widest uppercase">
                         STEAL
                       </span>
                       <Swords size={18} className="text-sky-400" />
                     </div>
-                    <div className="flex flex-col items-center my-4 z-10">
-                      <div className="w-20 h-20 rounded-full bg-sky-950/50 border border-sky-500/40 flex items-center justify-center text-4xl shadow-inner group-hover:scale-105 transition">
-                        🦫
-                      </div>
+
+                    {/* Authentic Character Portrait */}
+                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-sky-500/40 shadow-lg bg-sky-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-sky-400 transition-all duration-300">
+                      <img
+                        src="/cards/captain.jpg"
+                        alt="The Captain"
+                        className="w-full h-full object-cover object-top"
+                      />
                     </div>
-                    <div className="z-10">
-                      <h4 className="text-xl font-black text-white">Captain</h4>
+
+                    <div className="z-10 mt-1">
+                      <div className="flex items-baseline justify-between">
+                        <h4 className="text-lg font-black text-white">Captain</h4>
+                        <span className="text-xs font-bold text-sky-400">ขุนโจร</span>
+                      </div>
                       <p className="text-[11px] text-sky-300/80 font-semibold mb-2">
                         A clever paw finds every purse.
                       </p>
                       <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
                         <div className="flex items-start gap-1.5">
                           <span className="text-sky-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> ขโมย 2 เหรียญจากผู้เล่นอื่น</span>
+                          <span><strong>แอ็กชัน:</strong> ขโมย 2 เหรียญ</span>
                         </div>
                         <div className="flex items-start gap-1.5">
                           <span className="text-sky-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ป้องกันการถูกขโมยเหรียญ</span>
+                          <span><strong>บล็อก:</strong> ป้องกันการขโมยเหรียญ</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* 3. Ambassador */}
-                  <div className="bg-[#101622] border border-emerald-500/30 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-500/60 transition shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-emerald-500/10 pointer-events-none">
+                  <div className="bg-[#101622] border border-emerald-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-500/70 hover:shadow-glow-emerald transition-all duration-300 shadow-sm">
+                    <span className="absolute -right-2 -top-4 text-7xl font-black text-emerald-500/10 pointer-events-none select-none">
                       A
                     </span>
-                    <div className="flex items-center justify-between mb-4 z-10">
+                    <div className="flex items-center justify-between mb-2 z-10">
                       <span className="text-xs font-black text-emerald-400 tracking-widest uppercase">
                         EXCHANGE
                       </span>
                       <Repeat size={18} className="text-emerald-400" />
                     </div>
-                    <div className="flex flex-col items-center my-4 z-10">
-                      <div className="w-20 h-20 rounded-full bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-center text-4xl shadow-inner group-hover:scale-105 transition">
-                        🐹
-                      </div>
+
+                    {/* Authentic Character Portrait */}
+                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-lg bg-emerald-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-emerald-400 transition-all duration-300">
+                      <img
+                        src="/cards/ambassador.jpg"
+                        alt="The Ambassador"
+                        className="w-full h-full object-cover object-top"
+                      />
                     </div>
-                    <div className="z-10">
-                      <h4 className="text-xl font-black text-white">Ambassador</h4>
+
+                    <div className="z-10 mt-1">
+                      <div className="flex items-baseline justify-between">
+                        <h4 className="text-lg font-black text-white">Ambassador</h4>
+                        <span className="text-xs font-bold text-emerald-400">ราชทูต</span>
+                      </div>
                       <p className="text-[11px] text-emerald-300/80 font-semibold mb-2">
                         Every secret has a price.
                       </p>
                       <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
                         <div className="flex items-start gap-1.5">
                           <span className="text-emerald-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> จั่ว 2 ใบ สับเปลี่ยนคืนกอง</span>
+                          <span><strong>แอ็กชัน:</strong> จั่ว 2 สับคืนกอง</span>
                         </div>
                         <div className="flex items-start gap-1.5">
                           <span className="text-emerald-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ป้องกันการถูกขโมยเหรียญ</span>
+                          <span><strong>บล็อก:</strong> ป้องกันการขโมยเหรียญ</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* 4. Assassin */}
-                  <div className="bg-[#101622] border border-red-500/30 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-red-500/60 transition shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-red-500/10 pointer-events-none">
+                  <div className="bg-[#101622] border border-red-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-red-500/70 hover:shadow-glow-red transition-all duration-300 shadow-sm">
+                    <span className="absolute -right-2 -top-4 text-7xl font-black text-red-500/10 pointer-events-none select-none">
                       S
                     </span>
-                    <div className="flex items-center justify-between mb-4 z-10">
+                    <div className="flex items-center justify-between mb-2 z-10">
                       <span className="text-xs font-black text-red-400 tracking-widest uppercase">
                         ASSASSINATE
                       </span>
                       <Crosshair size={18} className="text-red-400" />
                     </div>
-                    <div className="flex flex-col items-center my-4 z-10">
-                      <div className="w-20 h-20 rounded-full bg-red-950/50 border border-red-500/40 flex items-center justify-center text-4xl shadow-inner group-hover:scale-105 transition">
-                        🦔
-                      </div>
+
+                    {/* Authentic Character Portrait */}
+                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-red-500/40 shadow-lg bg-red-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-red-400 transition-all duration-300">
+                      <img
+                        src="/cards/assassin.jpg"
+                        alt="The Assassin"
+                        className="w-full h-full object-cover object-top"
+                      />
                     </div>
-                    <div className="z-10">
-                      <h4 className="text-xl font-black text-white">Assassin</h4>
+
+                    <div className="z-10 mt-1">
+                      <div className="flex items-baseline justify-between">
+                        <h4 className="text-lg font-black text-white">Assassin</h4>
+                        <span className="text-xs font-bold text-red-400">มือสังหาร</span>
+                      </div>
                       <p className="text-[11px] text-red-300/80 font-semibold mb-2">
                         Silence is worth three acorns.
                       </p>
                       <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
                         <div className="flex items-start gap-1.5">
                           <span className="text-red-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> จ่าย 3 เหรียญ สังหารไพ่ 1 ใบ</span>
+                          <span><strong>แอ็กชัน:</strong> จ่าย 3 สังหารไพ่ 1 ใบ</span>
                         </div>
                         <div className="flex items-start gap-1.5">
                           <span className="text-red-400 font-bold">•</span>
@@ -740,34 +773,84 @@ export const MainMenuScreen: React.FC = () => {
                   </div>
 
                   {/* 5. Contessa */}
-                  <div className="bg-[#101622] border border-purple-500/30 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/60 transition shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-purple-500/10 pointer-events-none">
+                  <div className="bg-[#101622] border border-pink-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-pink-500/70 hover:shadow-[0_0_20px_rgba(236,72,153,0.35)] transition-all duration-300 shadow-sm">
+                    <span className="absolute -right-2 -top-4 text-7xl font-black text-pink-500/10 pointer-events-none select-none">
                       C
                     </span>
-                    <div className="flex items-center justify-between mb-4 z-10">
-                      <span className="text-xs font-black text-purple-400 tracking-widest uppercase">
+                    <div className="flex items-center justify-between mb-2 z-10">
+                      <span className="text-xs font-black text-pink-400 tracking-widest uppercase">
                         PROTECT
                       </span>
-                      <ShieldCheck size={18} className="text-purple-400" />
+                      <ShieldCheck size={18} className="text-pink-400" />
                     </div>
-                    <div className="flex flex-col items-center my-4 z-10">
-                      <div className="w-20 h-20 rounded-full bg-purple-950/50 border border-purple-500/40 flex items-center justify-center text-4xl shadow-inner group-hover:scale-105 transition">
-                        🐹
+
+                    {/* Authentic Character Portrait */}
+                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-pink-500/40 shadow-lg bg-pink-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-pink-400 transition-all duration-300">
+                      <img
+                        src="/cards/contessa.jpg"
+                        alt="The Contessa"
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+
+                    <div className="z-10 mt-1">
+                      <div className="flex items-baseline justify-between">
+                        <h4 className="text-lg font-black text-white">Contessa</h4>
+                        <span className="text-xs font-bold text-pink-400">รัชทายาท</span>
                       </div>
-                    </div>
-                    <div className="z-10">
-                      <h4 className="text-xl font-black text-white">Contessa</h4>
-                      <p className="text-[11px] text-purple-300/80 font-semibold mb-2">
+                      <p className="text-[11px] text-pink-300/80 font-semibold mb-2">
                         No dagger touches the royal court.
                       </p>
                       <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
                         <div className="flex items-start gap-1.5">
-                          <span className="text-purple-400 font-bold">•</span>
+                          <span className="text-pink-400 font-bold">•</span>
                           <span><strong>แอ็กชัน:</strong> ไม่มีแอ็กชันโจมตี</span>
                         </div>
                         <div className="flex items-start gap-1.5">
+                          <span className="text-pink-400 font-bold">•</span>
+                          <span><strong>บล็อก:</strong> ป้องกันการลอบสังหาร</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 6. Inquisitor */}
+                  <div className="bg-[#101622] border border-purple-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/70 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] transition-all duration-300 shadow-sm">
+                    <span className="absolute -right-2 -top-4 text-7xl font-black text-purple-500/10 pointer-events-none select-none">
+                      I
+                    </span>
+                    <div className="flex items-center justify-between mb-2 z-10">
+                      <span className="text-xs font-black text-purple-400 tracking-widest uppercase">
+                        INSPECT
+                      </span>
+                      <Search size={18} className="text-purple-400" />
+                    </div>
+
+                    {/* Authentic Character Portrait */}
+                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-purple-500/40 shadow-lg bg-purple-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-purple-400 transition-all duration-300">
+                      <img
+                        src="/cards/inquisitor.jpg"
+                        alt="The Inquisitor"
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+
+                    <div className="z-10 mt-1">
+                      <div className="flex items-baseline justify-between">
+                        <h4 className="text-lg font-black text-white">Inquisitor</h4>
+                        <span className="text-xs font-bold text-purple-400">ผู้ตรวจการ</span>
+                      </div>
+                      <p className="text-[11px] text-purple-300/80 font-semibold mb-2">
+                        No secret escapes the vigilant.
+                      </p>
+                      <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
+                        <div className="flex items-start gap-1.5">
                           <span className="text-purple-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ป้องกันการลอบสังหารของ Assassin</span>
+                          <span><strong>แอ็กชัน:</strong> แอบดูไพ่คู่แข่ง หรือสลับไพ่</span>
+                        </div>
+                        <div className="flex items-start gap-1.5">
+                          <span className="text-purple-400 font-bold">•</span>
+                          <span><strong>บล็อก:</strong> ป้องกันการขโมยเหรียญ</span>
                         </div>
                       </div>
                     </div>
