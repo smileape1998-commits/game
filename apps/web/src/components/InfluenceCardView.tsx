@@ -24,6 +24,23 @@ export const InfluenceCardView: React.FC<CardViewProps> = ({
   size = 'md'
 }) => {
   const [imgError, setImgError] = useState(false);
+  const [triedFallback, setTriedFallback] = useState(false);
+
+  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (!triedFallback && card) {
+      setTriedFallback(true);
+      const def = CHARACTERS[card.role];
+      const parts = def.image.split('/');
+      const fileName = parts.pop() || '';
+      const altFileName =
+        fileName.charAt(0) === fileName.charAt(0).toUpperCase()
+          ? fileName.charAt(0).toLowerCase() + fileName.slice(1)
+          : fileName.charAt(0).toUpperCase() + fileName.slice(1);
+      e.currentTarget.src = [...parts, altFileName].join('/');
+    } else {
+      setImgError(true);
+    }
+  };
 
   if (isFaceDown || !card) {
     // Face-Down Card Back
@@ -75,7 +92,7 @@ export const InfluenceCardView: React.FC<CardViewProps> = ({
             src={def.image}
             alt={def.nameTh}
             className="absolute inset-0 w-full h-full object-cover"
-            onError={() => setImgError(true)}
+            onError={handleImgError}
           />
 
           {/* Semi-transparent ability overlay strip at bottom for quick reading */}

@@ -32,6 +32,31 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
 app.use(express.json());
 
+// Case-insensitive card image serving for Linux deployment
+app.get('/cards/:filename', (req, res, next) => {
+  const reqName = req.params.filename.toLowerCase();
+  const searchDirs = [
+    path.resolve(webDistPath, 'cards'),
+    path.resolve(__dirname, '../../web/public/cards'),
+    path.resolve(__dirname, '../public/cards')
+  ];
+
+  for (const dir of searchDirs) {
+    if (fs.existsSync(dir)) {
+      try {
+        const files = fs.readdirSync(dir);
+        const match = files.find((f) => f.toLowerCase() === reqName);
+        if (match) {
+          return res.sendFile(path.join(dir, match));
+        }
+      } catch {
+        // Fall through
+      }
+    }
+  }
+  next();
+});
+
 if (fs.existsSync(webDistPath)) {
   app.use(express.static(webDistPath));
 }

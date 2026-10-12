@@ -27,6 +27,23 @@ export const CardSelectionModal: React.FC<CardSelectionModalProps> = ({
   const [settings, setSettings] = useState<GameSettings>({ ...initialSettings });
   const [activePreviewRole, setActivePreviewRole] = useState<CharacterRole>('duke');
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+  const [retriedRoles, setRetriedRoles] = useState<Record<string, boolean>>({});
+
+  const handleImageError = (role: CharacterRole, e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (!retriedRoles[role]) {
+      setRetriedRoles((prev) => ({ ...prev, [role]: true }));
+      const def = CHARACTERS[role];
+      const parts = def.image.split('/');
+      const fileName = parts.pop() || '';
+      const altFileName =
+        fileName.charAt(0) === fileName.charAt(0).toUpperCase()
+          ? fileName.charAt(0).toLowerCase() + fileName.slice(1)
+          : fileName.charAt(0).toUpperCase() + fileName.slice(1);
+      e.currentTarget.src = [...parts, altFileName].join('/');
+    } else {
+      setFailedImages((prev) => ({ ...prev, [role]: true }));
+    }
+  };
 
   const toggleRole = (role: CharacterRole) => {
     if (!isHost) return;
@@ -171,9 +188,7 @@ export const CardSelectionModal: React.FC<CardSelectionModalProps> = ({
                         src={def.image}
                         alt={def.nameTh}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        onError={() => {
-                          setFailedImages((prev) => ({ ...prev, [role]: true }));
-                        }}
+                        onError={(e) => handleImageError(role, e)}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 p-4">
@@ -239,9 +254,7 @@ export const CardSelectionModal: React.FC<CardSelectionModalProps> = ({
                     src={activeDef.image}
                     alt={activeDef.nameTh}
                     className="w-full h-full object-cover"
-                    onError={() => {
-                      setFailedImages((prev) => ({ ...prev, [activePreviewRole]: true }));
-                    }}
+                    onError={(e) => handleImageError(activePreviewRole, e)}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 p-6">
