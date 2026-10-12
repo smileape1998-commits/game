@@ -28,7 +28,8 @@ import {
   Layers,
   Sparkles,
   Crown,
-  Coins
+  Coins,
+  Repeat
 } from 'lucide-react';
 
 export const GameplayScreen: React.FC = () => {
@@ -279,6 +280,34 @@ export const GameplayScreen: React.FC = () => {
               keepCount={myCards.filter((c) => !c.revealed).length}
               onConfirmExchange={(keptIds) => dispatchExchange(keptIds)}
             />
+          )}
+
+        {/* Waiting indicator for other players during EXCHANGE_SELECTION */}
+        {state.phase === 'EXCHANGE_SELECTION' &&
+          (!state.exchangeDrawnCards || state.exchangeDrawnCards.length === 0) && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm select-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-slate-900 border-2 border-emerald-500/80 rounded-3xl p-6 max-w-md w-full shadow-2xl text-center"
+              >
+                <div className="w-12 h-12 mx-auto rounded-full bg-emerald-950 border border-emerald-500/80 flex items-center justify-center text-emerald-400 mb-3 animate-pulse">
+                  <Repeat size={24} />
+                </div>
+                <h3 className="text-lg font-extrabold text-emerald-400 mb-1">
+                  กำลังแลกเปลี่ยนไพ่ (Exchange in Progress)
+                </h3>
+                <p className="text-sm font-bold text-slate-200 mt-2">
+                  <span className="text-amber-400">
+                    {state.players[state.turnPlayerId]?.name || 'ผู้เล่น'}
+                  </span>{' '}
+                  กำลังดูไพ่ 2 ใบจากกองกลางเพื่อเลือกไพ่ใหม่ และสับไพ่ที่เหลือกลับเข้ากอง
+                </p>
+                <div className="mt-4 flex justify-center">
+                  <div className="w-6 h-6 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                </div>
+              </motion.div>
+            </div>
           )}
 
         {/* Inspect Modal (Inquisitor) */}

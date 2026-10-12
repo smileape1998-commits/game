@@ -656,7 +656,17 @@ function requestInfluenceLoss(
   playerId: string,
   reason: PendingInfluenceLoss['reason']
 ) {
+  state.pendingInfluenceLoss = {
+    playerId,
+    reason
+  };
+
   const player = state.players[playerId];
+  if (!player || !player.isAlive) {
+    state.pendingInfluenceLoss = undefined;
+    return;
+  }
+
   const unrevealed = player.cards.filter((c) => !c.revealed);
 
   if (unrevealed.length <= 1) {
@@ -665,13 +675,11 @@ function requestInfluenceLoss(
       resolveInfluenceLoss(state, playerId, unrevealed[0].id);
       return;
     }
+    state.pendingInfluenceLoss = undefined;
+    return;
   }
 
   state.phase = 'INFLUENCE_SELECTION';
-  state.pendingInfluenceLoss = {
-    playerId,
-    reason
-  };
 }
 
 export function resolveInfluenceLoss(
@@ -753,6 +761,7 @@ export function resolveInfluenceLoss(
         state.phase = 'BLOCK_WINDOW';
         state.passedPlayerIds = [];
       } else {
+        state.passedPlayerIds = [];
         resolveActionEffect(state, rng);
       }
     }
@@ -763,6 +772,7 @@ export function resolveInfluenceLoss(
     if (challenge && challenge.targetId === playerId) {
       // Blocker lost (bluffed on block) -> block cancelled, action resolves!
       state.currentBlock = undefined;
+      state.passedPlayerIds = [];
       resolveActionEffect(state, rng);
     } else {
       // Challenger of the block lost -> block holds! Action cancelled.

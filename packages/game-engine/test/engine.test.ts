@@ -232,4 +232,183 @@ describe('Hamster Coup Game Engine', () => {
       claimedRole: 'duke'
     });
   });
+
+  describe('Ambassador (Exchange) Challenge Lifecycle & Single Influence Handling', () => {
+    it('handles Ambassador challenged and proven when challenger has only 1 influence card', () => {
+      // 3 players so the match does not immediately end when challenger is eliminated
+      const state = createGame(DEFAULT_SETTINGS, players, 4321);
+      // Give p1 an Ambassador
+      state.players['p1'].cards[0].role = 'ambassador';
+      // Set p2 to only 1 unrevealed card
+      state.players['p2'].cards[0].revealed = true;
+
+      expect(state.players['p2'].cards.filter((c) => !c.revealed)).toHaveLength(1);
+
+      // p1 plays Ambassador
+      applyAction(state, { type: 'exchange', actorId: 'p1', claimedRole: 'ambassador' });
+      expect(state.phase).toBe('CHALLENGE_WINDOW');
+
+      // p2 challenges p1
+      applyResponse(state, 'p2', { type: 'challenge' });
+
+      // p1 has Ambassador, so p2 loses challenge!
+      // Since p2 had only 1 card left, p2 is automatically eliminated!
+      expect(state.players['p2'].isAlive).toBe(false);
+
+      // p1 was proven! p1's exchange action must still execute (enters EXCHANGE_SELECTION)
+      expect(state.phase).toBe('EXCHANGE_SELECTION');
+      expect(state.exchangeState?.drawnCards).toHaveLength(2);
+      expect(state.exchangeState?.keepCount).toBe(2);
+
+      // p1 completes exchange
+      const livingCards = state.players['p1'].cards.filter((c) => !c.revealed);
+      const pool = [...livingCards, ...state.exchangeState!.drawnCards];
+      resolveExchange(state, [pool[0].id, pool[1].id]);
+
+      // Turn advances to p3 (p2 is eliminated)
+      expect(state.phase).toBe('ACTION_SELECTION');
+      expect(state.turnOrder[state.turnPlayerIndex]).toBe('p3');
+      expect(() => validateInvariants(state)).not.toThrow();
+    });
+
+    it('handles Ambassador challenged and proven when challenger has 2 influence cards', () => {
+      const state = createGame(DEFAULT_SETTINGS, players, 5678);
+      state.players['p1'].cards[0].role = 'ambassador';
+
+      applyAction(state, { type: 'exchange', actorId: 'p1', claimedRole: 'ambassador' });
+      expect(state.phase).toBe('CHALLENGE_WINDOW');
+
+      // p2 challenges
+      applyResponse(state, 'p2', { type: 'challenge' });
+
+      // p2 has 2 cards, must select influence to lose
+      expect(state.phase).toBe('INFLUENCE_SELECTION');
+      expect(state.pendingInfluenceLoss?.playerId).toBe('p2');
+      expect(state.pendingInfluenceLoss?.reason).toBe('challenge_lost');
+
+      const p2CardToLose = state.players['p2'].cards[0].id;
+      resolveInfluenceLoss(state, 'p2', p2CardToLose);
+
+      // p2 lost 1 card and is still alive
+      expect(state.players['p2'].cards.filter((c) => !c.revealed)).toHaveLength(1);
+      expect(state.players['p2'].isAlive).toBe(true);
+
+      // p1 proceeds with exchange
+      expect(state.phase).toBe('EXCHANGE_SELECTION');
+      expect(state.exchangeState?.drawnCards).toHaveLength(2);
+
+      const livingCards = state.players['p1'].cards.filter((c) => !c.revealed);
+      const pool = [...livingCards, ...state.exchangeState!.drawnCards];
+      resolveExchange(state, [pool[1].id, pool[2].id]);
+
+      // Exchange finished, turn advances to p2
+      expect(state.phase).toBe('ACTION_SELECTION');
+      expect(state.turnOrder[state.turnPlayerIndex]).toBe('p2');
+      expect(() => validateInvariants(state)).not.toThrow();
+    });
+
+    it('handles Ambassador challenged when actor was bluffing with 1 influence card', () => {
+      const state = createGame(DEFAULT_SETTINGS, players, 9999);
+      // Ensure p1 does NOT hold Ambassador
+      state.players['p1'].cards[0].role = 'assassin';
+      state.players['p1'].cards[1].role = 'contessa';
+      // p1 has only 1 unrevealed card left
+      state.players['p1'].cards[1].revealed = true;
+      expect(state.players['p1'].cards.filter((c) => !c.revealed)).toHaveLength(1);
+
+      applyAction(state, { type: 'exchange', actorId: 'p1', claimedRole: 'ambassador' });
+      expect(state.phase).toBe('CHALLENGE_WINDOW');
+
+      // p2 challenges p1
+      applyResponse(state, 'p2', { type: 'challenge' });
+
+      // p1 was bluffing and only had 1 card left -> automatically revealed and eliminated!
+      expect(state.players['p1'].isAlive).toBe(false);
+
+      // Action cancelled, turn advances immediately to p2
+      expect(state.phase).toBe('ACTION_SELECTION');
+      expect(state.turnOrder[state.turnPlayerIndex]).toBe('p2');
+      expect(state.currentAction).toBeUndefined();
+      expect(state.exchangeState).toBeUndefined();
+      expect(() => validateInvariants(state)).not.toThrow();
+    });
+
+    it('handles Ambassador challenged when actor was bluffing with 2 influence cards', () => {
+      const state = createGame(DEFAULT_SETTINGS, players, 9999);
+      state.players['p1'].cards[0].role = 'duke';
+      state.players['p1'].cards[1].role = 'captain';
+
+      applyAction(state, { type: 'exchange', actorId: 'p1', claimedRole: 'ambassador' });
+      expect(state.phase).toBe('CHALLENGE_WINDOW');
+
+      applyResponse(state, 'p2', { type: 'challenge' });
+
+      // p1 must select which card to lose
+      expect(state.phase).toBe('INFLUENCE_SELECTION');
+      expect(state.pendingInfluenceLoss?.playerId).toBe('p1');
+
+      resolveInfluenceLoss(state, 'p1', state.players['p1'].cards[0].id);
+
+      // p1 lost 1 card, action cancelled, turn advances to p2
+      expect(state.players['p1'].cards.filter((c) => !c.revealed)).toHaveLength(1);
+      expect(state.phase).toBe('ACTION_SELECTION');
+      expect(state.turnOrder[state.turnPlayerIndex]).toBe('p2');
+      expect(state.currentAction).toBeUndefined();
+      expect(state.exchangeState).toBeUndefined();
+      expect(() => validateInvariants(state)).not.toThrow();
+    });
+
+    it('handles Coup against player with 1 influence card and advances turn properly', () => {
+      const state = createGame(DEFAULT_SETTINGS, players, 1111);
+      state.players['p1'].acorns = 7;
+      state.players['p2'].cards[0].revealed = true; // p2 has 1 card left
+
+      applyAction(state, { type: 'coup', actorId: 'p1', targetId: 'p2' });
+
+      // p2 had only 1 card, coup automatically reveals it and eliminates p2!
+      expect(state.players['p2'].isAlive).toBe(false);
+      // Turn must advance automatically to p3
+      expect(state.phase).toBe('ACTION_SELECTION');
+      expect(state.turnOrder[state.turnPlayerIndex]).toBe('p3');
+      expect(state.currentAction).toBeUndefined();
+      expect(() => validateInvariants(state)).not.toThrow();
+    });
+
+    it('handles 3-player response window when first player passes and second challenges', () => {
+      const state = createGame(DEFAULT_SETTINGS, players, 2222);
+      state.players['p1'].cards[0].role = 'ambassador';
+
+      applyAction(state, { type: 'exchange', actorId: 'p1', claimedRole: 'ambassador' });
+      expect(state.phase).toBe('CHALLENGE_WINDOW');
+
+      // p2 passes
+      applyResponse(state, 'p2', { type: 'pass' });
+      expect(state.passedPlayerIds).toContain('p2');
+      expect(state.phase).toBe('CHALLENGE_WINDOW');
+
+      // p3 challenges
+      applyResponse(state, 'p3', { type: 'challenge' });
+
+      // p3 must select card to lose (p1 had ambassador)
+      expect(state.phase).toBe('INFLUENCE_SELECTION');
+      expect(state.pendingInfluenceLoss?.playerId).toBe('p3');
+
+      resolveInfluenceLoss(state, 'p3', state.players['p3'].cards[0].id);
+
+      // After influence loss, p1 proceeds to exchange
+      expect(state.phase).toBe('EXCHANGE_SELECTION');
+      expect(state.exchangeState?.drawnCards).toHaveLength(2);
+
+      const livingCards = state.players['p1'].cards.filter((c) => !c.revealed);
+      const pool = [...livingCards, ...state.exchangeState!.drawnCards];
+      resolveExchange(state, [pool[0].id, pool[1].id]);
+
+      // Turn advances to p2!
+      expect(state.phase).toBe('ACTION_SELECTION');
+      expect(state.turnOrder[state.turnPlayerIndex]).toBe('p2');
+      expect(state.passedPlayerIds).toHaveLength(0);
+      expect(() => validateInvariants(state)).not.toThrow();
+    });
+  });
 });
+

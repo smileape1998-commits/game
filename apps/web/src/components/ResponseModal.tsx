@@ -37,6 +37,12 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
   hasPassed,
   onRespond
 }) => {
+  const [isChallenged, setIsChallenged] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsChallenged(false);
+  }, [phase, currentAction?.action?.type, currentBlock?.claimedRole]);
+
   if (
     phase !== 'CHALLENGE_WINDOW' &&
     phase !== 'BLOCK_WINDOW' &&
@@ -54,6 +60,7 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
     : undefined;
 
   const handleChallenge = () => {
+    setIsChallenged(true);
     sounds.playChallenge();
     onRespond({ type: 'challenge' });
   };
@@ -121,6 +128,11 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
               hasPassed ? (
                 <div className="text-center py-2 text-sm font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-xl">
                   ✓ คุณได้กดยอมรับแล้ว (รอผู้เล่นอื่นตัดสินใจ...)
+                </div>
+              ) : isChallenged ? (
+                <div className="text-center py-3 text-sm font-bold text-amber-300 bg-amber-950/40 border border-amber-800/60 rounded-xl flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                  <span>⚔️ คุณได้ส่งคำท้าทายแล้ว! กำลังตรวจสอบไพ่...</span>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
@@ -280,6 +292,11 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
               hasPassed ? (
                 <div className="text-center py-2 text-sm font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-xl">
                   ✓ คุณยอมรับการขัดขวางแล้ว
+                </div>
+              ) : isChallenged ? (
+                <div className="text-center py-3 text-sm font-bold text-amber-300 bg-amber-950/40 border border-amber-800/60 rounded-xl flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                  <span>⚔️ คุณได้ส่งคำท้าทายการกันแล้ว! กำลังตรวจสอบไพ่...</span>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">

@@ -200,4 +200,61 @@ describe('E2E Gameplay Scenarios Validation (Section 17)', () => {
     const p2Actions = getLegalActions(state, 'p2').filter((a) => a.type === 'coup');
     expect(p2Actions.length).toBeGreaterThan(0);
   });
+
+  // Scenario F — Ambassador Exchange & Challenge End-to-End Flow
+  it('Scenario F: Full lifecycle of Ambassador exchange challenged, proven, 2 cards drawn, kept, and unkept shuffled back', () => {
+    const players = [
+      { id: 'p1', name: 'Pip', avatar: 'h1' },
+      { id: 'p2', name: 'Barnaby', avatar: 'h2' },
+      { id: 'p3', name: 'Cheeks', avatar: 'h3' }
+    ];
+
+    const state = createGame(DEFAULT_SETTINGS, players, 333);
+    // Ensure p1 holds an Ambassador
+    state.players['p1'].cards[0].role = 'ambassador';
+    const initialDeckCount = state.deck.length;
+
+    // 1. Pip declares Ambassador Exchange
+    applyAction(state, { type: 'exchange', actorId: 'p1', claimedRole: 'ambassador' });
+    expect(state.phase).toBe('CHALLENGE_WINDOW');
+
+    // 2. Cheeks passes, but Barnaby challenges!
+    applyResponse(state, 'p3', { type: 'pass' });
+    expect(state.passedPlayerIds).toContain('p3');
+
+    applyResponse(state, 'p2', { type: 'challenge' });
+
+    // 3. Pip had Ambassador -> challenge fails!
+    // Barnaby loses challenge and surrenders 1 card
+    expect(state.phase).toBe('INFLUENCE_SELECTION');
+    expect(state.pendingInfluenceLoss?.playerId).toBe('p2');
+
+    const barnabyCardToLose = state.players['p2'].cards[0].id;
+    resolveInfluenceLoss(state, 'p2', barnabyCardToLose);
+
+    // 4. Pip's action proceeds: draws 2 cards from deck
+    expect(state.phase).toBe('EXCHANGE_SELECTION');
+    expect(state.exchangeState?.playerId).toBe('p1');
+    expect(state.exchangeState?.drawnCards).toHaveLength(2);
+
+    // Verify authorized serialization: Pip sees drawn cards, opponents do NOT
+    const pipView = serializePublicState(state, 'p1');
+    const barnabyView = serializePublicState(state, 'p2');
+    expect(pipView.exchangeDrawnCards).toHaveLength(2);
+    expect(barnabyView.exchangeDrawnCards).toBeUndefined();
+
+    // 5. Pip chooses 2 cards to keep and returns remaining to deck
+    const livingCards = state.players['p1'].cards.filter((c) => !c.revealed);
+    const pool = [...livingCards, ...state.exchangeState!.drawnCards];
+    resolveExchange(state, [pool[0].id, pool[1].id]);
+
+    // 6. Exchange completes: unkept cards shuffled back, turn advances cleanly
+    expect(state.phase).toBe('ACTION_SELECTION');
+    expect(state.turnOrder[state.turnPlayerIndex]).toBe('p2');
+    expect(state.players['p1'].cards.filter((c) => !c.revealed)).toHaveLength(2);
+    // Deck size should be conserved (initial deck - 1 card lost by p2)
+    // Total cards = hands (2 + 1 + 2 = 5) + revealed (1) + deck (12) = 18
+    expect(state.deck.length).toBe(initialDeckCount);
+  });
 });
+
