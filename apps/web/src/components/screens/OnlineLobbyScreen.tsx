@@ -14,7 +14,8 @@ import {
   Sliders,
   CheckCircle2,
   Clock,
-  Layers
+  Layers,
+  UserX
 } from 'lucide-react';
 
 export const OnlineLobbyScreen: React.FC = () => {
@@ -24,6 +25,7 @@ export const OnlineLobbyScreen: React.FC = () => {
     leaveOnlineRoom,
     toggleReady,
     addOnlineAI,
+    kickOnlinePlayer,
     startOnlineGame,
     setShowRulesModal,
     setShowCardSelectionModal
@@ -148,19 +150,35 @@ export const OnlineLobbyScreen: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  {isPlayerHost || p.isAI ? (
-                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                      <CheckCircle2 size={16} /> พร้อม
-                    </span>
-                  ) : p.isReady ? (
-                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                      <CheckCircle2 size={16} /> พร้อมแล้ว
-                    </span>
-                  ) : (
-                    <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
-                      <Clock size={16} /> ยังไม่พร้อม
-                    </span>
+                <div className="flex items-center gap-2">
+                  <div>
+                    {isPlayerHost || p.isAI ? (
+                      <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 size={16} /> พร้อม
+                      </span>
+                    ) : p.isReady ? (
+                      <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 size={16} /> พร้อมแล้ว
+                      </span>
+                    ) : (
+                      <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                        <Clock size={16} /> ยังไม่พร้อม
+                      </span>
+                    )}
+                  </div>
+
+                  {isHost && p.id !== activeViewerPlayerId && (
+                    <button
+                      onClick={() => {
+                        sounds.playCardFlip();
+                        kickOnlinePlayer(p.id);
+                      }}
+                      className="px-2 py-1 rounded-lg bg-red-950/50 hover:bg-red-900 border border-red-800/60 hover:border-red-500 text-red-400 hover:text-red-100 transition text-xs font-bold flex items-center gap-1 shadow"
+                      title={p.isAI ? 'ลบบอท AI ออกจากห้อง' : 'เตะผู้เล่นออกจากห้อง'}
+                    >
+                      <UserX size={13} />
+                      <span className="text-[11px]">เตะออก</span>
+                    </button>
                   )}
                 </div>
               </div>

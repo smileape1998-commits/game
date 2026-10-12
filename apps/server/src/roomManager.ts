@@ -68,12 +68,22 @@ export class RoomManager {
     return this.rooms.get(code.toUpperCase());
   }
 
+  getSocketInfo(socketId: string): { roomCode: string; playerId: string } | undefined {
+    return this.socketToPlayer.get(socketId);
+  }
+
   createRoom(
     socket: Socket,
     playerName: string,
     avatar: string,
     customSettings?: Partial<GameSettings>
   ): { code: string; playerId: string } {
+    // If this socket was already in a room, cleanly leave it first
+    const prev = this.socketToPlayer.get(socket.id);
+    if (prev) {
+      this.leaveRoom(prev.roomCode, prev.playerId, socket);
+    }
+
     const code = this.generateRoomCode();
     const playerId = `player_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
@@ -122,6 +132,12 @@ export class RoomManager {
 
     if (room.players.length >= room.settings.maxPlayers) {
       return { success: false, error: 'ห้องเต็มแล้ว (Room is full)' };
+    }
+
+    // If this socket was already in a room, cleanly leave it first
+    const prev = this.socketToPlayer.get(socket.id);
+    if (prev) {
+      this.leaveRoom(prev.roomCode, prev.playerId, socket);
     }
 
     const playerId = `player_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -176,6 +192,59 @@ export class RoomManager {
     this.broadcastRoomUpdate(room);
   }
 
+  leaveRoom(roomCode: string, playerId: string, socket?: Socket) {
+    const room = this.getRoom(roomCode);
+    if (!room) return;
+
+    const idx = room.players.findIndex((p) => p.id === playerId);
+    if (idx === -1) return;
+
+    const player = room.players[idx];
+
+    if (!room.inGame) {
+      // In lobby: remove player completely
+      room.players.splice(idx, 1);
+      if (player.socketId) {
+        this.socketToPlayer.delete(player.socketId);
+      }
+      const sock = socket || (player.socketId ? this.io.sockets.sockets.get(player.socketId) : undefined);
+      if (sock) {
+        sock.leave(room.code);
+      }
+
+      // If host left, transfer host to next connected human player or delete room if empty
+      if (player.isHost) {
+        const nextHuman = room.players.find((p) => !p.isAI && p.connected);
+        if (nextHuman) {
+          nextHuman.isHost = true;
+          room.hostId = nextHuman.id;
+          this.broadcastRoomUpdate(room);
+        } else {
+          // No more human players left in room -> destroy room!
+          if (room.aiTimeoutTimer) {
+            clearTimeout(room.aiTimeoutTimer);
+          }
+          this.rooms.delete(room.code);
+          return;
+        }
+      } else {
+        this.broadcastRoomUpdate(room);
+      }
+    } else {
+      // In game: mark disconnected
+      player.connected = false;
+      player.socketId = undefined;
+      if (room.gameState && room.gameState.players[player.id]) {
+        room.gameState.players[player.id].connected = false;
+      }
+      if (player.socketId) {
+        this.socketToPlayer.delete(player.socketId);
+      }
+      this.broadcastRoomUpdate(room);
+      this.broadcastGameState(room);
+    }
+  }
+
   removePlayer(roomCode: string, requesterId: string, targetId: string) {
     const room = this.getRoom(roomCode);
     if (!room || room.inGame) return;
@@ -187,6 +256,11 @@ export class RoomManager {
       const removed = room.players.splice(idx, 1)[0];
       if (removed.socketId) {
         this.socketToPlayer.delete(removed.socketId);
+        this.io.to(removed.socketId).emit('room:kicked', 'คุณถูกเตะออกจากห้องโดยหัวหน้าห้อง');
+        const kickedSocket = this.io.sockets.sockets.get(removed.socketId);
+        if (kickedSocket) {
+          kickedSocket.leave(room.code);
+        }
       }
       this.broadcastRoomUpdate(room);
     }
@@ -344,32 +418,7 @@ export class RoomManager {
     const info = this.socketToPlayer.get(socketId);
     if (!info) return;
 
-    const room = this.getRoom(info.roomCode);
-    if (!room) return;
-
-    const player = room.players.find((p) => p.id === info.playerId);
-    if (player) {
-      player.connected = false;
-      player.socketId = undefined;
-
-      if (room.gameState && room.gameState.players[player.id]) {
-        room.gameState.players[player.id].connected = false;
-      }
-
-      if (!room.inGame) {
-        // If in lobby, remove player unless host
-        if (!player.isHost) {
-          const idx = room.players.indexOf(player);
-          if (idx !== -1) room.players.splice(idx, 1);
-        }
-      }
-
-      this.broadcastRoomUpdate(room);
-      if (room.inGame) {
-        this.broadcastGameState(room);
-      }
-    }
-
+    this.leaveRoom(info.roomCode, info.playerId);
     this.socketToPlayer.delete(socketId);
   }
 

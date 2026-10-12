@@ -128,9 +128,23 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('room:leave', () => {
+    const info = roomManager.getSocketInfo(socket.id);
+    const code = info?.roomCode || currentRoomCode;
+    const pId = info?.playerId || currentPlayerId;
+    if (code && pId) {
+      roomManager.leaveRoom(code, pId, socket);
+      currentRoomCode = null;
+      currentPlayerId = null;
+    }
+  });
+
   socket.on('room:remove_player', (targetId: string) => {
-    if (currentRoomCode && currentPlayerId) {
-      roomManager.removePlayer(currentRoomCode, currentPlayerId, targetId);
+    const info = roomManager.getSocketInfo(socket.id);
+    const code = info?.roomCode || currentRoomCode;
+    const pId = info?.playerId || currentPlayerId;
+    if (code && pId) {
+      roomManager.removePlayer(code, pId, targetId);
     }
   });
 

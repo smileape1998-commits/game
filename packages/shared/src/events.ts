@@ -62,6 +62,7 @@ export interface ServerToClientEvents {
   'game:state': (state: PublicGameState, myCards: InfluenceCard[]) => void;
   'game:error': (message: string) => void;
   'game:notification': (message: string) => void;
+  'room:kicked': (message: string) => void;
 }
 
 export interface ClientToServerEvents {

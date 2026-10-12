@@ -86,6 +86,7 @@ export interface GameStoreState {
   leaveOnlineRoom: () => void;
   toggleReady: () => void;
   addOnlineAI: (personality?: AIPersonality, difficulty?: AIDifficulty) => void;
+  kickOnlinePlayer: (targetId: string) => void;
   startOnlineGame: () => void;
 
   // Gameplay Actions (dispatches to local engine or server socket)
@@ -355,6 +356,11 @@ export const useGameStore = create<GameStoreState>((set, get) => {
         set({ serverError: errorMsg });
       });
 
+      socket.on('room:kicked', (message: string) => {
+        alert(message || 'คุณถูกเตะออกจากห้อง');
+        set({ view: 'online_menu', roomInfo: null });
+      });
+
       set({ socket });
     },
 
@@ -421,6 +427,13 @@ export const useGameStore = create<GameStoreState>((set, get) => {
       const { socket } = get();
       if (socket) {
         socket.emit('room:add_ai', personality, difficulty);
+      }
+    },
+
+    kickOnlinePlayer: (targetId: string) => {
+      const { socket } = get();
+      if (socket) {
+        socket.emit('room:remove_player', targetId);
       }
     },
 
