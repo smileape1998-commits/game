@@ -26,9 +26,9 @@ export const PlayerPanel: React.FC<PlayerPanelProps> = ({
     <motion.div
       animate={isTurn ? { scale: [1, 1.03, 1] } : {}}
       transition={isTurn ? { repeat: Infinity, duration: 2.2 } : {}}
-      className={`relative rounded-2xl border transition-all p-3 flex flex-col justify-between select-none
-        ${isDead ? 'bg-slate-950/70 border-slate-800 opacity-60' : 'bg-slate-900/90 border-slate-700/80 shadow-2xl backdrop-blur-md'}
-        ${isTurn ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-glow-gold' : ''}
+      className={`relative rounded-3xl border transition-all p-3.5 flex flex-col justify-between select-none
+        ${isDead ? 'bg-[#0B0E14]/80 border-slate-800/60 opacity-50' : 'bg-[#101622] border-slate-800 shadow-xl'}
+        ${isTurn ? 'border-amber-400/90 ring-2 ring-amber-400/40 shadow-lg shadow-amber-500/10' : ''}
         ${isTargetable ? 'ring-2 ring-red-500 cursor-pointer hover:border-red-400 hover:scale-105' : ''}
         ${player.faction === 'red' ? 'border-l-4 border-l-red-500' : ''}
         ${player.faction === 'blue' ? 'border-l-4 border-l-blue-500' : ''}
@@ -100,12 +100,12 @@ export const PlayerPanel: React.FC<PlayerPanelProps> = ({
       </div>
 
       {/* Middle row: Acorn Currency Counter */}
-      <div className="my-2 bg-slate-950/70 border border-slate-800 rounded-lg px-2 py-1 flex items-center justify-between">
-        <div className="flex items-center gap-1 text-xs font-medium text-amber-200">
+      <div className="my-2 bg-[#0B0E14] border border-slate-800/80 rounded-2xl px-3 py-1.5 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-200">
           <GoldenAcornIcon size={18} />
           <span>ลูกโอ๊กทองคำ</span>
         </div>
-        <div className="flex items-center gap-0.5 font-extrabold text-sm text-amber-400">
+        <div className="flex items-center gap-0.5 font-black text-sm text-amber-400">
           <span>{player.acorns}</span>
         </div>
       </div>

@@ -95,16 +95,20 @@ export const GameplayScreen: React.FC = () => {
   const hasPassed = state.passedPlayerIds.includes(activeViewerPlayerId);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 select-none relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col justify-between bg-[#0B0E14] text-slate-100 select-none relative overflow-x-hidden font-sans">
+      {/* Background Subtle Ambient Aura */}
+      <div className="fixed top-0 right-1/4 w-[600px] h-[600px] bg-amber-500/[0.02] rounded-full blur-[140px] pointer-events-none" />
+      <div className="fixed bottom-0 left-10 w-[500px] h-[500px] bg-blue-500/[0.02] rounded-full blur-[140px] pointer-events-none" />
+
       {/* Top Navigation Bar */}
-      <div className="bg-slate-900/90 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between z-20 backdrop-blur-md">
+      <div className="bg-[#0D121C]/90 border-b border-slate-800/80 px-4 py-2.5 flex items-center justify-between z-20 backdrop-blur-md sticky top-0">
         <div className="flex items-center gap-3">
           <button
             onClick={() => {
               sounds.playCardFlip();
               exitToMenu();
             }}
-            className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-red-400 transition"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-red-400 transition bg-[#101622] border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-xl"
           >
             <LogOut size={14} /> ออก
           </button>
@@ -136,14 +140,14 @@ export const GameplayScreen: React.FC = () => {
               sounds.playCardFlip();
               setShowHowToPlayModal(true);
             }}
-            className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition"
+            className="p-2 rounded-xl bg-[#101622] border border-slate-800 text-slate-400 hover:text-white transition"
             title="คู่มือการเล่น"
           >
             <BookOpen size={16} />
           </button>
           <button
             onClick={toggleSound}
-            className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition"
+            className="p-2 rounded-xl bg-[#101622] border border-slate-800 text-slate-400 hover:text-white transition"
             title="เปิด/ปิดเสียง"
           >
             {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
@@ -170,7 +174,7 @@ export const GameplayScreen: React.FC = () => {
             key={state.history[0]?.id || 'banner'}
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-block bg-slate-900/90 border border-amber-600/60 rounded-3xl px-6 py-4 shadow-2xl backdrop-blur-md max-w-xl mx-auto"
+            className="inline-block bg-[#101622]/95 border border-slate-800 rounded-3xl px-7 py-4 shadow-xl backdrop-blur-md max-w-xl mx-auto"
           >
             {/* Turn Announcement */}
             <div className="flex items-center justify-center gap-2 mb-1">
@@ -197,9 +201,9 @@ export const GameplayScreen: React.FC = () => {
         {/* Player Bottom Bar (My Hand & Actions) */}
         <div className="mt-2 flex flex-col items-center">
           {/* Active Viewer Stats Strip */}
-          <div className="flex items-center gap-4 bg-slate-900/90 border border-slate-800 rounded-full px-5 py-2 mb-3 shadow-xl backdrop-blur-md">
+          <div className="flex items-center gap-4 bg-[#101622] border border-slate-800 rounded-full px-5 py-2 mb-3 shadow-xl backdrop-blur-md">
             <div className="flex items-center gap-2 font-black text-sm text-amber-300">
-              <div className="w-7 h-7 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-xs font-black">
+              <div className="w-7 h-7 rounded-full bg-amber-950/80 border border-amber-500/50 text-amber-300 flex items-center justify-center text-xs font-black">
                 {me?.name.charAt(0) || 'P'}
               </div>
               <span>{me?.name || 'คุณ'}</span>

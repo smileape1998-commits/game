@@ -76,25 +76,25 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm select-none font-sans">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-slate-900 border-2 border-amber-500/80 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl relative overflow-hidden"
+        className="bg-[#101622] border border-slate-800 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl relative overflow-hidden"
       >
         {/* Glowing Top Accent */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-600" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600" />
 
         {/* Phase 1: CHALLENGE WINDOW */}
         {phase === 'CHALLENGE_WINDOW' && currentAction && actor && (
           <div>
-            <div className="flex items-center gap-2 text-amber-400 font-extrabold text-base sm:text-lg mb-3">
+            <div className="flex items-center gap-2 text-amber-400 font-black text-base sm:text-lg mb-3">
               <AlertTriangle size={22} className="text-amber-400" />
               <span>หน้าต่างท้าทาย (Challenge Window)</span>
             </div>
 
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 sm:p-4 mb-4 flex items-center gap-4">
+            <div className="bg-[#0B0E14] border border-slate-800/80 rounded-2xl p-3.5 sm:p-4 mb-4 flex items-center gap-4">
               {currentAction.claimedRole && (
                 <div className="shrink-0">
                   <CharacterArtwork role={currentAction.claimedRole} size={64} />
@@ -119,18 +119,18 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
               </div>
             </div>
 
-            <div className="text-xs text-slate-400 mb-5 leading-relaxed bg-slate-800/40 border border-slate-700/50 p-2.5 rounded-xl">
+            <div className="text-xs text-slate-400 mb-5 leading-relaxed bg-[#0B0E14] border border-slate-800 p-3 rounded-2xl">
               💡 <span className="font-semibold text-slate-200">เดิมพันการท้าทาย:</span>{' '}
               หากคุณท้าทายและเขาไม่มีไพ่นั้นจริง เขาจะเสีย 1 อิทธิพลและแอ็กชันถูกยกเลิก! แต่ถ้าเขามีไพ่จริง คุณจะเสีย 1 อิทธิพลแทน!
             </div>
 
             {isEligibleToRespond ? (
               hasPassed ? (
-                <div className="text-center py-2 text-sm font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-xl">
+                <div className="text-center py-2.5 text-sm font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-2xl">
                   ✓ คุณได้กดยอมรับแล้ว (รอผู้เล่นอื่นตัดสินใจ...)
                 </div>
               ) : isChallenged ? (
-                <div className="text-center py-3 text-sm font-bold text-amber-300 bg-amber-950/40 border border-amber-800/60 rounded-xl flex items-center justify-center gap-2">
+                <div className="text-center py-3 text-sm font-bold text-amber-300 bg-amber-950/40 border border-amber-800/60 rounded-2xl flex items-center justify-center gap-2">
                   <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
                   <span>⚔️ คุณได้ส่งคำท้าทายแล้ว! กำลังตรวจสอบไพ่...</span>
                 </div>
@@ -138,14 +138,14 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handlePass}
-                    className="py-3 px-4 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition flex items-center justify-center gap-1.5"
+                    className="py-3 px-4 rounded-2xl border border-slate-700 bg-[#162030] hover:bg-[#1e2a3e] text-slate-200 font-black text-sm transition flex items-center justify-center gap-1.5"
                   >
                     <Check size={18} />
                     ยอมรับ / ผ่าน (Allow)
                   </button>
                   <button
                     onClick={handleChallenge}
-                    className="py-3 px-4 rounded-xl border border-red-500 bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm transition shadow-glow-red flex items-center justify-center gap-1.5"
+                    className="py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-sm transition shadow-lg shadow-red-600/20 flex items-center justify-center gap-1.5"
                   >
                     <Swords size={18} />
                     ท้าทาย! (Challenge)
@@ -163,12 +163,12 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
         {/* Phase 2: BLOCK WINDOW */}
         {phase === 'BLOCK_WINDOW' && currentAction && actor && (
           <div>
-            <div className="flex items-center gap-2 text-blue-400 font-extrabold text-base sm:text-lg mb-3">
-              <Shield size={22} className="text-blue-400" />
+            <div className="flex items-center gap-2 text-sky-400 font-black text-base sm:text-lg mb-3">
+              <Shield size={22} className="text-sky-400" />
               <span>หน้าต่างขัดขวาง (Block Window)</span>
             </div>
 
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 sm:p-4 mb-4">
+            <div className="bg-[#0B0E14] border border-slate-800/80 rounded-2xl p-3.5 sm:p-4 mb-4">
               <div className="text-xs text-slate-400 font-medium">การกระทำที่สามารถกันได้:</div>
               <div className="text-sm sm:text-base font-bold text-slate-100 mt-1">
                 <span className="text-amber-300">{actor.name}</span> กระทำ {actionDef?.nameTh}
@@ -180,7 +180,7 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
 
             {isEligibleToRespond ? (
               hasPassed ? (
-                <div className="text-center py-2 text-sm font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-xl">
+                <div className="text-center py-2.5 text-sm font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-2xl">
                   ✓ คุณไม่ขัดขวาง (ผ่าน)
                 </div>
               ) : (
@@ -192,7 +192,7 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
                     {currentAction.action.type === 'assassinate' && (
                       <button
                         onClick={() => handleBlock('contessa')}
-                        className="p-2.5 rounded-xl border border-pink-500 bg-pink-950/80 hover:bg-pink-900/90 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow"
+                        className="p-3 rounded-2xl border border-pink-500/40 bg-pink-950/40 hover:bg-pink-900/50 text-white font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-sm transition"
                       >
                         <CharacterArtwork role="contessa" size={34} />
                         <div className="text-left">
@@ -206,7 +206,7 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
                       <>
                         <button
                           onClick={() => handleBlock('captain')}
-                          className="p-2.5 rounded-xl border border-cyan-500 bg-cyan-950/80 hover:bg-cyan-900/90 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow"
+                          className="p-3 rounded-2xl border border-cyan-500/40 bg-cyan-950/40 hover:bg-cyan-900/50 text-white font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-sm transition"
                         >
                           <CharacterArtwork role="captain" size={34} />
                           <div className="text-left">
@@ -216,7 +216,7 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
                         </button>
                         <button
                           onClick={() => handleBlock('ambassador')}
-                          className="p-2.5 rounded-xl border border-emerald-500 bg-emerald-950/80 hover:bg-emerald-900/90 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow"
+                          className="p-3 rounded-2xl border border-emerald-500/40 bg-emerald-950/40 hover:bg-emerald-900/50 text-white font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-sm transition"
                         >
                           <CharacterArtwork role="ambassador" size={34} />
                           <div className="text-left">
@@ -230,7 +230,7 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
                     {currentAction.action.type === 'foreign_aid' && (
                       <button
                         onClick={() => handleBlock('duke')}
-                        className="p-2.5 rounded-xl border border-amber-500 bg-amber-950/80 hover:bg-amber-900/90 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow"
+                        className="p-3 rounded-2xl border border-amber-500/40 bg-amber-950/40 hover:bg-amber-900/50 text-white font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-sm transition"
                       >
                         <CharacterArtwork role="duke" size={34} />
                         <div className="text-left">
@@ -243,7 +243,7 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
 
                   <button
                     onClick={handlePass}
-                    className="w-full py-2.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm"
+                    className="w-full py-3 rounded-2xl border border-slate-700 bg-[#162030] hover:bg-[#1e2a3e] text-slate-300 font-black text-xs sm:text-sm transition"
                   >
                     ไม่ขัดขวาง (ผ่าน / Pass)
                   </button>
@@ -260,12 +260,12 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
         {/* Phase 3: BLOCK CHALLENGE WINDOW */}
         {phase === 'BLOCK_CHALLENGE_WINDOW' && currentBlock && blocker && (
           <div>
-            <div className="flex items-center gap-2 text-purple-400 font-extrabold text-base sm:text-lg mb-3">
+            <div className="flex items-center gap-2 text-purple-400 font-black text-base sm:text-lg mb-3">
               <ShieldAlert size={22} className="text-purple-400" />
               <span>ท้าทายการขัดขวาง (Block Challenge)</span>
             </div>
 
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 sm:p-4 mb-4 flex items-center gap-4">
+            <div className="bg-[#0B0E14] border border-slate-800/80 rounded-2xl p-3.5 sm:p-4 mb-4 flex items-center gap-4">
               <div className="shrink-0">
                 <CharacterArtwork role={currentBlock.claimedRole} size={64} />
               </div>
@@ -283,18 +283,18 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
               </div>
             </div>
 
-            <div className="text-xs text-slate-400 mb-5 leading-relaxed bg-slate-800/40 border border-slate-700/50 p-2.5 rounded-xl">
+            <div className="text-xs text-slate-400 mb-5 leading-relaxed bg-[#0B0E14] border border-slate-800 p-3 rounded-2xl">
               💡 <span className="font-semibold text-slate-200">เดิมพันการท้าทายการกัน:</span>{' '}
               หากคุณท้าทายแล้วเขาไม่มีไพ่กันจริง การกันจะล้มเหลวและเขาเสีย 1 อิทธิพล! แต่ถ้าเขามีไพ่จริง คุณจะเสีย 1 อิทธิพลแทน!
             </div>
 
             {isEligibleToRespond ? (
               hasPassed ? (
-                <div className="text-center py-2 text-sm font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-xl">
+                <div className="text-center py-2.5 text-sm font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-2xl">
                   ✓ คุณยอมรับการขัดขวางแล้ว
                 </div>
               ) : isChallenged ? (
-                <div className="text-center py-3 text-sm font-bold text-amber-300 bg-amber-950/40 border border-amber-800/60 rounded-xl flex items-center justify-center gap-2">
+                <div className="text-center py-3 text-sm font-bold text-amber-300 bg-amber-950/40 border border-amber-800/60 rounded-2xl flex items-center justify-center gap-2">
                   <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
                   <span>⚔️ คุณได้ส่งคำท้าทายการกันแล้ว! กำลังตรวจสอบไพ่...</span>
                 </div>
@@ -302,14 +302,14 @@ export const ResponseModal: React.FC<ResponseModalProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handlePass}
-                    className="py-3 px-4 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition flex items-center justify-center gap-1.5"
+                    className="py-3 px-4 rounded-2xl border border-slate-700 bg-[#162030] hover:bg-[#1e2a3e] text-slate-200 font-black text-sm transition flex items-center justify-center gap-1.5"
                   >
                     <Check size={18} />
                     ยอมรับการกัน (Accept)
                   </button>
                   <button
                     onClick={handleChallenge}
-                    className="py-3 px-4 rounded-xl border border-red-500 bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm transition shadow-glow-red flex items-center justify-center gap-1.5"
+                    className="py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-sm transition shadow-lg shadow-red-600/20 flex items-center justify-center gap-1.5"
                   >
                     <Swords size={18} />
                     ท้าทายการกัน! (Challenge)

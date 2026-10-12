@@ -88,10 +88,10 @@ export const ActionDrawer: React.FC<ActionDrawerProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/95 border-t border-amber-600/50 shadow-2xl backdrop-blur-md p-3 sm:p-4 rounded-t-3xl">
+    <div className="bg-[#0D121C]/95 border-t border-slate-800 shadow-2xl backdrop-blur-md p-4 sm:p-5 rounded-t-3xl">
       {/* Mandatory Coup Banner */}
       {isMandatoryCoup && (
-        <div className="mb-3 bg-red-950/80 border border-red-500 text-red-200 px-3 py-1.5 rounded-xl text-center text-xs sm:text-sm font-bold animate-pulse flex items-center justify-center gap-2">
+        <div className="mb-3 bg-red-950/70 border border-red-500/60 text-red-200 px-3.5 py-2 rounded-2xl text-center text-xs sm:text-sm font-bold animate-pulse flex items-center justify-center gap-2">
           <Skull size={18} className="text-red-400" />
           <span>คุณมีลูกโอ๊กทองคำ 10 เม็ดขึ้นไป! ต้องก่อรัฐประหาร (Coup) เท่านั้น</span>
         </div>
@@ -99,15 +99,15 @@ export const ActionDrawer: React.FC<ActionDrawerProps> = ({
 
       {/* Target Selection Sub-menu */}
       {selectedPendingAction && (
-        <div className="mb-3 bg-slate-800/90 border border-amber-500 rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-amber-300 flex items-center gap-1.5">
+        <div className="mb-3 bg-[#101622] border border-amber-500/60 rounded-2xl p-3.5 shadow-lg">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1.5">
               <Crosshair size={16} />
               เลือกเป้าหมายสำหรับ: {ACTION_DEFINITIONS[selectedPendingAction].nameTh}
             </span>
             <button
               onClick={() => setSelectedPendingAction(null)}
-              className="text-xs bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-slate-300 font-medium"
+              className="text-xs bg-[#162030] hover:bg-[#1f2b42] px-2.5 py-1 rounded-xl text-slate-300 font-bold transition"
             >
               ยกเลิก
             </button>
@@ -124,15 +124,15 @@ export const ActionDrawer: React.FC<ActionDrawerProps> = ({
                     key={opp.id}
                     disabled={!isLegalTarget}
                     onClick={() => handleTargetSelect(opp.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5
                       ${
                         isLegalTarget
-                          ? 'bg-amber-600 hover:bg-amber-500 text-slate-950 shadow-md'
-                          : 'bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed'
+                          ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md cursor-pointer'
+                          : 'bg-[#0B0E14] text-slate-600 border border-slate-800 opacity-50 cursor-not-allowed'
                       }`}
                   >
                     <span>{opp.name}</span>
-                    <span className="text-[10px] bg-slate-900/60 px-1 py-0.5 rounded text-amber-300 flex items-center gap-0.5">
+                    <span className="text-[10px] bg-slate-950/70 px-1.5 py-0.5 rounded-lg text-amber-300 flex items-center gap-0.5 font-bold">
                       <GoldenAcornIcon size={12} /> {opp.acorns}
                     </span>
                   </button>
@@ -326,13 +326,13 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     <button
       disabled={disabled}
       onClick={onClick}
-      className={`relative text-left p-2.5 rounded-xl border transition flex flex-col justify-between select-none
+      className={`relative text-left p-3 rounded-2xl border transition-all flex flex-col justify-between select-none
         ${
           disabled
-            ? 'bg-slate-900/40 border-slate-800 text-slate-600 opacity-40 cursor-not-allowed'
+            ? 'bg-[#0B0E14]/40 border-slate-900 text-slate-600 opacity-40 cursor-not-allowed'
             : highlight
-            ? 'bg-red-950/80 border-red-500 ring-2 ring-red-400 text-white hover:bg-red-900 shadow-glow-red scale-102'
-            : 'bg-slate-800/80 border-slate-700/80 text-slate-200 hover:border-amber-400 hover:bg-slate-800 shadow-md'
+            ? 'bg-red-950/70 border-red-500/80 ring-2 ring-red-400 text-white hover:bg-red-900 shadow-lg scale-102 cursor-pointer'
+            : 'bg-[#101622] border-slate-800 text-slate-200 hover:border-amber-400/80 hover:bg-[#151D2C] shadow-sm cursor-pointer'
         }`}
     >
       <div className="flex items-center justify-between w-full mb-1">
