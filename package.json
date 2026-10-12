@@ -12,6 +12,7 @@
     "dev:server": "npm run dev --workspace=@hamster-coup/server",
     "dev:web": "npm run dev --workspace=@hamster-coup/web",
     "build": "npm run build --workspaces --if-present",
+    "start": "npm run start --workspace=@hamster-coup/server",
     "test": "vitest run",
     "test:watch": "vitest"
   },

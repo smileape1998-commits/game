@@ -154,7 +154,11 @@ export function getLivingOpponents(state: GameState, playerId: string): Player[]
   return getLivingPlayers(state).filter((p) => p.id !== playerId);
 }
 
-export function canTargetPlayerInFaction(state: GameState, actor: Player, target: Player): boolean {
+export function canTargetPlayerInFaction(
+  state: GameState | PublicGameState,
+  actor: Player | PublicPlayer,
+  target: Player | PublicPlayer
+): boolean {
   if (!state.settings.reformationEnabled || !state.settings.reformationFriendlyFireBlocked) {
     return true;
   }
@@ -165,24 +169,32 @@ export function canTargetPlayerInFaction(state: GameState, actor: Player, target
     return true;
   }
   // If actor and target are on the SAME faction, check if all other living players are also on this faction!
-  const livingOpponents = getLivingOpponents(state, actor.id);
+  const livingOpponents = Object.values(state.players).filter((p) => p && p.isAlive && p.id !== actor.id);
   const differentFactionOpponents = livingOpponents.filter((p) => p.faction !== actor.faction);
   return differentFactionOpponents.length === 0;
 }
 
-export function getLegalActions(state: GameState, playerId: string): GameAction[] {
+export function getLegalActions(state: GameState | PublicGameState, playerId: string): GameAction[] {
   if (state.phase !== 'ACTION_SELECTION') {
     return [];
   }
 
-  const currentTurnPlayer = getCurrentTurnPlayer(state);
-  if (currentTurnPlayer.id !== playerId || !currentTurnPlayer.isAlive) {
+  const turnPlayerId =
+    'turnPlayerId' in state
+      ? state.turnPlayerId
+      : state.turnOrder[state.turnPlayerIndex];
+
+  if (turnPlayerId !== playerId) {
     return [];
   }
 
-  const player = currentTurnPlayer;
+  const player = state.players[playerId];
+  if (!player || !player.isAlive) {
+    return [];
+  }
+
   const actions: GameAction[] = [];
-  const opponents = getLivingOpponents(state, playerId);
+  const opponents = Object.values(state.players).filter((p) => p && p.isAlive && p.id !== playerId);
 
   // Mandatory Coup rule
   if (player.acorns >= state.settings.mandatoryCoupThreshold) {
@@ -260,8 +272,10 @@ export function getLegalActions(state: GameState, playerId: string): GameAction[
     }
   }
 
+  const deckCount = 'deckCount' in state ? state.deckCount : state.deck.length;
+
   // 7. Exchange (The Ambassador)
-  if (state.settings.enabledRoles.ambassador && state.deck.length > 0) {
+  if (state.settings.enabledRoles.ambassador && deckCount > 0) {
     actions.push({
       type: 'exchange',
       actorId: player.id,
@@ -273,8 +287,12 @@ export function getLegalActions(state: GameState, playerId: string): GameAction[
   if (state.settings.enabledRoles.inquisitor) {
     // Inspect
     for (const opp of opponents) {
-      const oppHiddenCards = opp.cards.filter((c) => !c.revealed);
-      if (oppHiddenCards.length > 0 && canTargetPlayerInFaction(state, player, opp)) {
+      const oppHiddenCardsCount =
+        'influenceCount' in opp
+          ? opp.influenceCount
+          : (opp as Player).cards.filter((c) => !c.revealed).length;
+
+      if (oppHiddenCardsCount > 0 && canTargetPlayerInFaction(state, player, opp)) {
         actions.push({
           type: 'inquisitor_inspect',
           actorId: player.id,
@@ -284,7 +302,7 @@ export function getLegalActions(state: GameState, playerId: string): GameAction[
       }
     }
     // Exchange
-    if (state.deck.length > 0) {
+    if (deckCount > 0) {
       actions.push({
         type: 'inquisitor_exchange',
         actorId: player.id,

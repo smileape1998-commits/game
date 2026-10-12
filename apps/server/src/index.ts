@@ -3,6 +3,9 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 import { RoomManager } from './roomManager.js';
 import {
   RoomCreateSchema,
@@ -16,6 +19,10 @@ import {
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const webDistPath = path.resolve(__dirname, '../../web/dist');
+
 const app = express();
 const httpServer = createServer(app);
 
@@ -24,6 +31,10 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 
 app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
 app.use(express.json());
+
+if (fs.existsSync(webDistPath)) {
+  app.use(express.static(webDistPath));
+}
 
 const io = new Server(httpServer, {
   cors: {
@@ -200,6 +211,15 @@ io.on('connection', (socket) => {
     roomManager.handleDisconnect(socket.id);
   });
 });
+
+if (fs.existsSync(webDistPath)) {
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/socket.io') || req.path === '/health') {
+      return next();
+    }
+    res.sendFile(path.join(webDistPath, 'index.html'));
+  });
+}
 
 httpServer.listen(PORT, () => {
   console.log(`[Hamster Coup Server] Running on http://localhost:${PORT}`);

@@ -73,14 +73,8 @@ export const GameplayScreen: React.FC = () => {
 
   // Compute legal actions for the current viewer
   let viewerLegalActions: GameAction[] = [];
-  if (gameState) {
-    viewerLegalActions = getLegalActions(gameState, activeViewerPlayerId);
-  } else if (isMyTurn && state.phase === 'ACTION_SELECTION') {
-    // For online mode fallback heuristics
-    viewerLegalActions = [
-      { type: 'income', actorId: activeViewerPlayerId },
-      { type: 'foreign_aid', actorId: activeViewerPlayerId }
-    ];
+  if (isMyTurn && state.phase === 'ACTION_SELECTION') {
+    viewerLegalActions = getLegalActions(gameState || state, activeViewerPlayerId);
   }
 
   // Check if current viewer is eligible to respond in challenge/block windows

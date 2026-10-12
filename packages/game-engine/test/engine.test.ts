@@ -212,4 +212,24 @@ describe('Hamster Coup Game Engine', () => {
     expect((publicState as any).deck).toBeUndefined();
     expect(publicState.deckCount).toBe(12);
   });
+
+  it('computes legal actions correctly from PublicGameState (including Tax / Duke)', () => {
+    const state = createGame(DEFAULT_SETTINGS, players, 12345);
+    const publicState = serializePublicState(state, 'p1');
+
+    const legalActions = getLegalActions(publicState, 'p1');
+    const actionTypes = legalActions.map((a) => a.type);
+
+    // Tax (duke) must be legal
+    expect(actionTypes).toContain('tax');
+    expect(actionTypes).toContain('income');
+    expect(actionTypes).toContain('foreign_aid');
+
+    const taxAction = legalActions.find((a) => a.type === 'tax');
+    expect(taxAction).toEqual({
+      type: 'tax',
+      actorId: 'p1',
+      claimedRole: 'duke'
+    });
+  });
 });
