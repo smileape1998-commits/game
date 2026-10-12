@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PublicPlayer, Faction } from '@hamster-coup/shared';
 import { GoldenAcornIcon } from './CharacterArtwork';
 import { InfluenceCardView } from './InfluenceCardView';
@@ -21,6 +21,20 @@ export const PlayerPanel: React.FC<PlayerPanelProps> = ({
   isCurrentViewer = false
 }) => {
   const isDead = !player.isAlive;
+  const [acornDelta, setAcornDelta] = useState<number | null>(null);
+  const prevAcorns = useRef(player.acorns);
+
+  useEffect(() => {
+    if (prevAcorns.current !== player.acorns) {
+      const diff = player.acorns - prevAcorns.current;
+      if (diff !== 0) {
+        setAcornDelta(diff);
+        const timer = setTimeout(() => setAcornDelta(null), 1400);
+        return () => clearTimeout(timer);
+      }
+    }
+    prevAcorns.current = player.acorns;
+  }, [player.acorns]);
 
   return (
     <motion.div
@@ -100,13 +114,30 @@ export const PlayerPanel: React.FC<PlayerPanelProps> = ({
       </div>
 
       {/* Middle row: Acorn Currency Counter */}
-      <div className="my-2 bg-[#0B0E14] border border-slate-800/80 rounded-2xl px-3 py-1.5 flex items-center justify-between">
+      <div className="relative my-2 bg-[#0B0E14] border border-slate-800/80 rounded-2xl px-3 py-1.5 flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-200">
           <GoldenAcornIcon size={18} />
           <span>ลูกโอ๊กทองคำ</span>
         </div>
-        <div className="flex items-center gap-0.5 font-black text-sm text-amber-400">
+        <div className="relative flex items-center gap-0.5 font-black text-sm text-amber-400">
           <span>{player.acorns}</span>
+          <AnimatePresence>
+            {acornDelta !== null && (
+              <motion.span
+                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                animate={{ opacity: 1, y: -20, scale: 1.15 }}
+                exit={{ opacity: 0, y: -30, scale: 0.7 }}
+                transition={{ duration: 1, ease: 'easeOut' }}
+                className={`absolute -top-1 right-0 text-[10px] font-black px-1.5 py-0.2 rounded-full pointer-events-none shadow-md z-20 ${
+                  acornDelta > 0
+                    ? 'bg-amber-400 text-slate-950 shadow-amber-400/50'
+                    : 'bg-red-500 text-white shadow-red-500/50'
+                }`}
+              >
+                {acornDelta > 0 ? `+${acornDelta}` : acornDelta}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 

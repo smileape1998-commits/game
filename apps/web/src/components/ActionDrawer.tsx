@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   GameAction,
   ActionType,
@@ -41,8 +42,33 @@ export const ActionDrawer: React.FC<ActionDrawerProps> = ({
 
   const isMandatoryCoup = myAcorns >= settings.mandatoryCoupThreshold;
 
+  const playActionSound = (type: ActionType) => {
+    switch (type) {
+      case 'tax':
+        sounds.playCoinShower();
+        break;
+      case 'coup':
+      case 'assassinate':
+        sounds.playSlash();
+        break;
+      case 'steal':
+        sounds.playSwoosh();
+        break;
+      case 'exchange':
+      case 'inquisitor_exchange':
+      case 'inquisitor_inspect':
+        sounds.playCardFlip();
+        break;
+      case 'income':
+      case 'foreign_aid':
+      default:
+        sounds.playCoin();
+        break;
+    }
+  };
+
   const handleActionClick = (type: ActionType) => {
-    sounds.playCoin();
+    playActionSound(type);
     const def = ACTION_DEFINITIONS[type];
 
     if (def.isTargeted) {
@@ -60,7 +86,7 @@ export const ActionDrawer: React.FC<ActionDrawerProps> = ({
 
   const handleTargetSelect = (targetId: string) => {
     if (!selectedPendingAction) return;
-    sounds.playCoin();
+    playActionSound(selectedPendingAction);
 
     const action = legalActions.find(
       (a) => a.type === selectedPendingAction && a.targetId === targetId
@@ -323,15 +349,18 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   onClick
 }) => {
   return (
-    <button
+    <motion.button
       disabled={disabled}
       onClick={onClick}
-      className={`relative text-left p-3 rounded-2xl border transition-all flex flex-col justify-between select-none
+      whileHover={!disabled ? { y: -2, scale: 1.02 } : {}}
+      whileTap={!disabled ? { scale: 0.95 } : {}}
+      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+      className={`relative text-left p-3 rounded-2xl border transition-colors flex flex-col justify-between select-none
         ${
           disabled
             ? 'bg-[#0B0E14]/40 border-slate-900 text-slate-600 opacity-40 cursor-not-allowed'
             : highlight
-            ? 'bg-red-950/70 border-red-500/80 ring-2 ring-red-400 text-white hover:bg-red-900 shadow-lg scale-102 cursor-pointer'
+            ? 'bg-red-950/70 border-red-500/80 ring-2 ring-red-400 text-white hover:bg-red-900 shadow-lg cursor-pointer'
             : 'bg-[#101622] border-slate-800 text-slate-200 hover:border-amber-400/80 hover:bg-[#151D2C] shadow-sm cursor-pointer'
         }`}
     >
@@ -361,6 +390,6 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           {roleTag}
         </div>
       )}
-    </button>
+    </motion.button>
   );
 };

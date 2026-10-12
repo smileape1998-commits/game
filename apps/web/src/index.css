@@ -217,3 +217,89 @@
   animation: particle-drift 7s ease-in-out infinite;
   will-change: transform, opacity;
 }
+
+/* Action Impact Screen Shake */
+@keyframes screen-impact-shake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  15% { transform: translate(-6px, 4px) rotate(-0.5deg); }
+  30% { transform: translate(6px, -4px) rotate(0.5deg); }
+  45% { transform: translate(-4px, 2px) rotate(-0.25deg); }
+  60% { transform: translate(4px, -2px) rotate(0.25deg); }
+  75% { transform: translate(-2px, 1px) rotate(0deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.animate-screen-shake {
+  animation: screen-impact-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Sharp Slash Trail (Assassinate, Coup) */
+@keyframes slash-swipe {
+  0% {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    opacity: 0;
+    transform: scale(0.9) skewX(-15deg);
+  }
+  30% {
+    clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+    opacity: 1;
+    transform: scale(1.05) skewX(-15deg);
+  }
+  70% {
+    clip-path: polygon(30% 0, 100% 0, 100% 100%, 15% 100%);
+    opacity: 0.9;
+  }
+  100% {
+    clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+    opacity: 0;
+    transform: scale(1.1) skewX(-15deg);
+  }
+}
+
+.animate-slash-swipe {
+  animation: slash-swipe 0.55s ease-out forwards;
+}
+
+/* Shield Barrier Pulse (Block) */
+@keyframes shield-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.12);
+    opacity: 0.95;
+    box-shadow: 0 0 50px rgba(56, 189, 248, 0.6);
+  }
+  70% {
+    transform: scale(1.02);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+.animate-shield-pulse {
+  animation: shield-pulse 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Golden Shockwave Expansion */
+@keyframes gold-shockwave {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+    border-width: 6px;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+.animate-gold-shockwave {
+  animation: gold-shockwave 0.65s cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
+}
+

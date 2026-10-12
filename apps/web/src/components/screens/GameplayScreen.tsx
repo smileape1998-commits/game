@@ -19,6 +19,7 @@ import { PassDeviceModal } from '../PassDeviceModal';
 import { GameOverModal } from '../GameOverModal';
 import { EventLogDrawer } from '../EventLogDrawer';
 import { GoldenAcornIcon } from '../CharacterArtwork';
+import { ActionFXOverlay } from '../ActionFXOverlay';
 import { sounds } from '../../audio/soundEffects';
 import {
   LogOut,
@@ -53,8 +54,14 @@ export const GameplayScreen: React.FC = () => {
   } = useGameStore();
 
   const [soundEnabled, setSoundEnabled] = useState(sounds.enabled);
+  const [isScreenShaking, setIsScreenShaking] = useState(false);
   const [floatingCoin, setFloatingCoin] = useState<{ amount: number; id: number } | null>(null);
   const prevAcornsRef = React.useRef<number | undefined>(undefined);
+
+  const triggerScreenShake = () => {
+    setIsScreenShaking(true);
+    setTimeout(() => setIsScreenShaking(false), 450);
+  };
 
   const toggleSound = () => {
     sounds.enabled = !soundEnabled;
