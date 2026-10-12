@@ -169,3 +169,51 @@
   animation: hero-ring-pulse-2 6s ease-in-out infinite;
   will-change: transform, opacity;
 }
+
+/* Card Holographic Foil Sheen Effect (GPU Accelerated) */
+.card-foil-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 160%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.12) 35%,
+    rgba(250, 204, 21, 0.28) 48%,
+    rgba(255, 255, 255, 0.18) 55%,
+    transparent 75%
+  );
+  transform: translateX(-140%) skewX(-20deg) translateZ(0);
+  pointer-events: none;
+  transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.group:hover .card-foil-sheen {
+  transform: translateX(130%) skewX(-20deg) translateZ(0);
+}
+
+/* Floating Golden Dust Particles (Compositor Accelerated) */
+@keyframes particle-drift {
+  0% {
+    transform: translateY(0px) translateX(0px) scale(0.6) translateZ(0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.6;
+  }
+  75% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-90px) translateX(20px) scale(1) translateZ(0);
+    opacity: 0;
+  }
+}
+
+.animate-particle-drift {
+  animation: particle-drift 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}

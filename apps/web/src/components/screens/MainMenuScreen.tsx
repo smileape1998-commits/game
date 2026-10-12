@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../state/gameStore';
 import { GoldenAcornIcon } from '../CharacterArtwork';
 import { sounds } from '../../audio/soundEffects';
+import { CharacterRole, CHARACTERS } from '@hamster-coup/shared';
+import { CardDetailModal } from '../CardDetailModal';
 import {
   Crown,
   Swords,
@@ -31,6 +33,132 @@ import {
 
 type MainMenuTab = 'home' | 'play' | 'cards' | 'rules' | 'settings';
 
+const AmbientGoldenSparks: React.FC = () => {
+  const sparks = [
+    { id: 1, left: '12%', top: '22%', delay: '0s', size: 3 },
+    { id: 2, left: '26%', top: '68%', delay: '2.5s', size: 2 },
+    { id: 3, left: '44%', top: '18%', delay: '4s', size: 4 },
+    { id: 4, left: '58%', top: '82%', delay: '1.2s', size: 2.5 },
+    { id: 5, left: '72%', top: '32%', delay: '3.1s', size: 3.5 },
+    { id: 6, left: '85%', top: '74%', delay: '5.2s', size: 2 },
+    { id: 7, left: '92%', top: '16%', delay: '1.8s', size: 3 },
+    { id: 8, left: '6%', top: '78%', delay: '4.5s', size: 2.5 },
+    { id: 9, left: '38%', top: '52%', delay: '2s', size: 3 },
+    { id: 10, left: '78%', top: '48%', delay: '3.7s', size: 2 }
+  ];
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {sparks.map((s) => (
+        <div
+          key={s.id}
+          className="absolute rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] animate-particle-drift"
+          style={{
+            left: s.left,
+            top: s.top,
+            width: `${s.size}px`,
+            height: `${s.size}px`,
+            animationDelay: s.delay
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const COLLECTION_ROLES: Array<{
+  role: CharacterRole;
+  letter: string;
+  badge: string;
+  badgeColor: string;
+  icon: React.ReactNode;
+  borderClass: string;
+  hoverGlowClass: string;
+  portraitBorder: string;
+  quote: string;
+  actionTitle: string;
+  blockTitle: string;
+}> = [
+  {
+    role: 'duke',
+    letter: 'D',
+    badge: 'TAX',
+    badgeColor: 'text-amber-400',
+    icon: <Crown size={18} className="text-amber-400" />,
+    borderClass: 'border-amber-500/30 hover:border-amber-500/80',
+    hoverGlowClass: 'hover:shadow-glow-gold',
+    portraitBorder: 'border-amber-500/40 group-hover:border-amber-400 bg-amber-950/40',
+    quote: 'Power favors the prepared.',
+    actionTitle: 'เก็บภาษี 3 เหรียญ',
+    blockTitle: 'ขัดขวาง Foreign Aid'
+  },
+  {
+    role: 'captain',
+    letter: 'C',
+    badge: 'STEAL',
+    badgeColor: 'text-sky-400',
+    icon: <Swords size={18} className="text-sky-400" />,
+    borderClass: 'border-sky-500/30 hover:border-sky-500/80',
+    hoverGlowClass: 'hover:shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+    portraitBorder: 'border-sky-500/40 group-hover:border-sky-400 bg-sky-950/40',
+    quote: 'A clever paw finds every purse.',
+    actionTitle: 'ขโมย 2 เหรียญ',
+    blockTitle: 'ป้องกันการขโมยเหรียญ'
+  },
+  {
+    role: 'ambassador',
+    letter: 'A',
+    badge: 'EXCHANGE',
+    badgeColor: 'text-emerald-400',
+    icon: <Repeat size={18} className="text-emerald-400" />,
+    borderClass: 'border-emerald-500/30 hover:border-emerald-500/80',
+    hoverGlowClass: 'hover:shadow-glow-emerald',
+    portraitBorder: 'border-emerald-500/40 group-hover:border-emerald-400 bg-emerald-950/40',
+    quote: 'Every secret has a price.',
+    actionTitle: 'จั่ว 2 สับคืนกอง',
+    blockTitle: 'ป้องกันการขโมยเหรียญ'
+  },
+  {
+    role: 'assassin',
+    letter: 'S',
+    badge: 'ASSASSINATE',
+    badgeColor: 'text-red-400',
+    icon: <Crosshair size={18} className="text-red-400" />,
+    borderClass: 'border-red-500/30 hover:border-red-500/80',
+    hoverGlowClass: 'hover:shadow-glow-red',
+    portraitBorder: 'border-red-500/40 group-hover:border-red-400 bg-red-950/40',
+    quote: 'Silence is worth three acorns.',
+    actionTitle: 'จ่าย 3 สังหารไพ่ 1 ใบ',
+    blockTitle: 'ไม่สามารถบล็อกได้'
+  },
+  {
+    role: 'contessa',
+    letter: 'C',
+    badge: 'PROTECT',
+    badgeColor: 'text-pink-400',
+    icon: <ShieldCheck size={18} className="text-pink-400" />,
+    borderClass: 'border-pink-500/30 hover:border-pink-500/80',
+    hoverGlowClass: 'hover:shadow-[0_0_25px_rgba(236,72,153,0.35)]',
+    portraitBorder: 'border-pink-500/40 group-hover:border-pink-400 bg-pink-950/40',
+    quote: 'No dagger touches the royal court.',
+    actionTitle: 'ไม่มีแอ็กชันโจมตี',
+    blockTitle: 'ป้องกันการลอบสังหาร'
+  },
+  {
+    role: 'inquisitor',
+    letter: 'I',
+    badge: 'INSPECT',
+    badgeColor: 'text-purple-400',
+    icon: <Search size={18} className="text-purple-400" />,
+    borderClass: 'border-purple-500/30 hover:border-purple-500/80',
+    hoverGlowClass: 'hover:shadow-[0_0_25px_rgba(168,85,247,0.35)]',
+    portraitBorder: 'border-purple-500/40 group-hover:border-purple-400 bg-purple-950/40',
+    quote: 'No secret escapes the vigilant.',
+    actionTitle: 'แอบดูไพ่คู่แข่ง หรือสลับไพ่',
+    blockTitle: 'ป้องกันการขโมยเหรียญ'
+  }
+];
+
 export const MainMenuScreen: React.FC = () => {
   const {
     playerName,
@@ -44,6 +172,7 @@ export const MainMenuScreen: React.FC = () => {
   } = useGameStore();
 
   const [activeTab, setActiveTab] = useState<MainMenuTab>('home');
+  const [selectedInspectRole, setSelectedInspectRole] = useState<CharacterRole | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(sounds.enabled);
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const [editingName, setEditingName] = useState(false);
@@ -68,6 +197,9 @@ export const MainMenuScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0B0E14] text-slate-100 flex flex-col justify-between selection:bg-amber-500/30 select-none relative overflow-x-hidden font-sans">
+      {/* Floating Golden Dust Particles (Compositor Accelerated) */}
+      <AmbientGoldenSparks />
+
       {/* Background Subtle Ambient Aura (GPU friendly radial gradients without heavy blur filters) */}
       <div
         className="fixed top-0 right-1/4 w-[500px] h-[500px] pointer-events-none opacity-40"
@@ -312,50 +444,62 @@ export const MainMenuScreen: React.FC = () => {
 
                       {/* Card 1: Duke (Tilted Left + GPU Compositor Float) */}
                       <div
-                        className="absolute left-4 top-4 w-44 h-64 rounded-2xl bg-[#141C2B] border border-amber-500/50 p-3.5 shadow-2xl flex flex-col justify-between cursor-pointer animate-hero-sway-left group hover:scale-105 hover:z-20 transition-transform duration-300"
-                        onClick={() => selectTab('cards')}
+                        className="absolute left-4 top-4 w-44 h-64 rounded-2xl bg-[#141C2B] border border-amber-500/50 p-3.5 shadow-2xl flex flex-col justify-between cursor-pointer animate-hero-sway-left group hover:scale-105 hover:z-20 hover:border-amber-400 hover:shadow-glow-gold transition-all duration-300"
+                        onClick={() => {
+                          sounds.playCardFlip();
+                          setSelectedInspectRole('duke');
+                        }}
+                        title="คลิกเพื่อตรวจสอบการ์ด 3D"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-xl font-black text-amber-400/90">D</span>
                           <Crown size={16} className="text-amber-400" />
                         </div>
-                        <div className="relative w-24 h-24 mx-auto my-auto rounded-full overflow-hidden border-2 border-amber-500/50 shadow-inner bg-amber-950/60 group-hover:scale-105 transition-transform duration-300">
+                        <div className="relative w-24 h-24 mx-auto my-auto rounded-full overflow-hidden border-2 border-amber-500/50 shadow-inner bg-amber-950/60 group-hover:scale-105 group-hover:border-amber-400 transition-all duration-300 card-foil-container">
                           <img
                             src="/cards/duke.jpg"
                             alt="The Duke"
                             className="w-full h-full object-cover object-top"
                           />
+                          <div className="card-foil-sheen" />
                         </div>
                         <div>
-                          <div className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                            TAX
+                          <div className="text-[10px] font-black text-amber-400 uppercase tracking-widest flex items-center justify-between">
+                            <span>TAX</span>
+                            <span className="text-[9px] text-amber-300 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">ดู 3D ✨</span>
                           </div>
-                          <div className="text-sm font-black text-white">Duke</div>
+                          <div className="text-sm font-black text-white">Duke (เจ้าพระยา)</div>
                           <div className="text-[10px] text-slate-400 truncate">Take 3 acorns (เก็บภาษี)</div>
                         </div>
                       </div>
 
                       {/* Card 2: Captain (Tilted Right + GPU Compositor Float) */}
                       <div
-                        className="absolute right-4 top-8 w-44 h-64 rounded-2xl bg-[#101724] border border-sky-500/50 p-3.5 shadow-2xl flex flex-col justify-between cursor-pointer animate-hero-sway-right group hover:scale-105 hover:z-20 transition-transform duration-300"
-                        onClick={() => selectTab('cards')}
+                        className="absolute right-4 top-8 w-44 h-64 rounded-2xl bg-[#101724] border border-sky-500/50 p-3.5 shadow-2xl flex flex-col justify-between cursor-pointer animate-hero-sway-right group hover:scale-105 hover:z-20 hover:border-sky-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300"
+                        onClick={() => {
+                          sounds.playCardFlip();
+                          setSelectedInspectRole('captain');
+                        }}
+                        title="คลิกเพื่อตรวจสอบการ์ด 3D"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-xl font-black text-sky-400/90">C</span>
                           <Swords size={16} className="text-sky-400" />
                         </div>
-                        <div className="relative w-24 h-24 mx-auto my-auto rounded-full overflow-hidden border-2 border-sky-500/50 shadow-inner bg-sky-950/60 group-hover:scale-105 transition-transform duration-300">
+                        <div className="relative w-24 h-24 mx-auto my-auto rounded-full overflow-hidden border-2 border-sky-500/50 shadow-inner bg-sky-950/60 group-hover:scale-105 group-hover:border-sky-400 transition-all duration-300 card-foil-container">
                           <img
                             src="/cards/captain.jpg"
                             alt="The Captain"
                             className="w-full h-full object-cover object-top"
                           />
+                          <div className="card-foil-sheen" />
                         </div>
                         <div>
-                          <div className="text-[10px] font-black text-sky-400 uppercase tracking-widest">
-                            STEAL
+                          <div className="text-[10px] font-black text-sky-400 uppercase tracking-widest flex items-center justify-between">
+                            <span>STEAL</span>
+                            <span className="text-[9px] text-sky-300 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">ดู 3D ✨</span>
                           </div>
-                          <div className="text-sm font-black text-white">Captain</div>
+                          <div className="text-sm font-black text-white">Captain (ขุนโจร)</div>
                           <div className="text-[10px] text-slate-400 truncate">Steal 2 acorns (ปล้นเหรียญ)</div>
                         </div>
                       </div>
@@ -604,257 +748,77 @@ export const MainMenuScreen: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 pt-2">
-                  {/* 1. Duke */}
-                  <div className="bg-[#101622] border border-amber-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-amber-500/70 hover:shadow-glow-gold transition-all duration-300 shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-amber-500/10 pointer-events-none select-none">
-                      D
-                    </span>
-                    <div className="flex items-center justify-between mb-2 z-10">
-                      <span className="text-xs font-black text-amber-400 tracking-widest uppercase">
-                        TAX
-                      </span>
-                      <Crown size={18} className="text-amber-400" />
-                    </div>
-
-                    {/* Authentic Character Portrait */}
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-lg bg-amber-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-amber-400 transition-all duration-300">
-                      <img
-                        src="/cards/duke.jpg"
-                        alt="The Duke"
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </div>
-
-                    <div className="z-10 mt-1">
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="text-lg font-black text-white">Duke</h4>
-                        <span className="text-xs font-bold text-amber-400">เจ้าพระยา</span>
-                      </div>
-                      <p className="text-[11px] text-amber-300/80 font-semibold mb-2">
-                        Power favors the prepared.
-                      </p>
-                      <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-amber-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> เก็บภาษี 3 เหรียญ</span>
+                  {COLLECTION_ROLES.map((c, idx) => {
+                    const char = CHARACTERS[c.role];
+                    return (
+                      <motion.div
+                        key={c.role}
+                        initial={{ opacity: 0, y: 28, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.4, delay: idx * 0.07, ease: [0.25, 0.1, 0.25, 1] }}
+                        whileHover={{ y: -8, scale: 1.025 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          sounds.playCardFlip();
+                          setSelectedInspectRole(c.role);
+                        }}
+                        className={`bg-[#101622] border rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group transition-all duration-300 shadow-md cursor-pointer select-none ${c.borderClass} ${c.hoverGlowClass}`}
+                        title="คลิกเพื่อตรวจสอบการ์ด 3D"
+                      >
+                        <span className="absolute -right-2 -top-4 text-7xl font-black text-white/[0.04] pointer-events-none select-none transition-transform duration-300 group-hover:scale-110">
+                          {c.letter}
+                        </span>
+                        <div className="flex items-center justify-between mb-2 z-10">
+                          <span className={`text-xs font-black tracking-widest uppercase ${c.badgeColor}`}>
+                            {c.badge}
+                          </span>
+                          {c.icon}
                         </div>
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-amber-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ขัดขวาง Foreign Aid</span>
+
+                        {/* Authentic Character Portrait with Holographic Foil */}
+                        <div className={`relative w-full aspect-square rounded-2xl overflow-hidden border-2 shadow-lg my-2 z-10 card-foil-container transition-all duration-300 ${c.portraitBorder}`}>
+                          <img
+                            src={char.image}
+                            alt={char.nameEn}
+                            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                          />
+                          {/* Holographic foil sweep */}
+                          <div className="card-foil-sheen" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-40 pointer-events-none" />
                         </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* 2. Captain */}
-                  <div className="bg-[#101622] border border-sky-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-sky-500/70 hover:shadow-[0_0_20px_rgba(6,182,212,0.35)] transition-all duration-300 shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-sky-500/10 pointer-events-none select-none">
-                      C
-                    </span>
-                    <div className="flex items-center justify-between mb-2 z-10">
-                      <span className="text-xs font-black text-sky-400 tracking-widest uppercase">
-                        STEAL
-                      </span>
-                      <Swords size={18} className="text-sky-400" />
-                    </div>
+                        <div className="z-10 mt-1">
+                          <div className="flex items-baseline justify-between">
+                            <h4 className="text-lg font-black text-white group-hover:text-amber-300 transition-colors">
+                              {char.nameEn.replace('The ', '')}
+                            </h4>
+                            <span className={`text-xs font-bold ${c.badgeColor}`}>{char.nameTh}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 group-hover:text-slate-300 font-medium mb-2 transition-colors truncate">
+                            {c.quote}
+                          </p>
+                          <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
+                            <div className="flex items-start gap-1.5">
+                              <span className={`${c.badgeColor} font-bold`}>•</span>
+                              <span><strong>แอ็กชัน:</strong> {c.actionTitle}</span>
+                            </div>
+                            <div className="flex items-start gap-1.5">
+                              <span className={`${c.badgeColor} font-bold`}>•</span>
+                              <span><strong>บล็อก:</strong> {c.blockTitle}</span>
+                            </div>
+                          </div>
 
-                    {/* Authentic Character Portrait */}
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-sky-500/40 shadow-lg bg-sky-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-sky-400 transition-all duration-300">
-                      <img
-                        src="/cards/captain.jpg"
-                        alt="The Captain"
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </div>
-
-                    <div className="z-10 mt-1">
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="text-lg font-black text-white">Captain</h4>
-                        <span className="text-xs font-bold text-sky-400">ขุนโจร</span>
-                      </div>
-                      <p className="text-[11px] text-sky-300/80 font-semibold mb-2">
-                        A clever paw finds every purse.
-                      </p>
-                      <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-sky-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> ขโมย 2 เหรียญ</span>
+                          {/* Interactive Inspection Hint Pill */}
+                          <div className="mt-3 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[10px] text-slate-400 group-hover:text-amber-300 transition-colors">
+                            <span className="flex items-center gap-1 font-semibold">
+                              <Sparkles size={11} className="text-amber-400" /> คลิกดูการ์ด 3D
+                            </span>
+                            <ChevronRight size={13} className="transform group-hover:translate-x-1 transition-transform" />
+                          </div>
                         </div>
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-sky-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ป้องกันการขโมยเหรียญ</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3. Ambassador */}
-                  <div className="bg-[#101622] border border-emerald-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-500/70 hover:shadow-glow-emerald transition-all duration-300 shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-emerald-500/10 pointer-events-none select-none">
-                      A
-                    </span>
-                    <div className="flex items-center justify-between mb-2 z-10">
-                      <span className="text-xs font-black text-emerald-400 tracking-widest uppercase">
-                        EXCHANGE
-                      </span>
-                      <Repeat size={18} className="text-emerald-400" />
-                    </div>
-
-                    {/* Authentic Character Portrait */}
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-lg bg-emerald-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-emerald-400 transition-all duration-300">
-                      <img
-                        src="/cards/ambassador.jpg"
-                        alt="The Ambassador"
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </div>
-
-                    <div className="z-10 mt-1">
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="text-lg font-black text-white">Ambassador</h4>
-                        <span className="text-xs font-bold text-emerald-400">ราชทูต</span>
-                      </div>
-                      <p className="text-[11px] text-emerald-300/80 font-semibold mb-2">
-                        Every secret has a price.
-                      </p>
-                      <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-emerald-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> จั่ว 2 สับคืนกอง</span>
-                        </div>
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-emerald-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ป้องกันการขโมยเหรียญ</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 4. Assassin */}
-                  <div className="bg-[#101622] border border-red-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-red-500/70 hover:shadow-glow-red transition-all duration-300 shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-red-500/10 pointer-events-none select-none">
-                      S
-                    </span>
-                    <div className="flex items-center justify-between mb-2 z-10">
-                      <span className="text-xs font-black text-red-400 tracking-widest uppercase">
-                        ASSASSINATE
-                      </span>
-                      <Crosshair size={18} className="text-red-400" />
-                    </div>
-
-                    {/* Authentic Character Portrait */}
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-red-500/40 shadow-lg bg-red-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-red-400 transition-all duration-300">
-                      <img
-                        src="/cards/assassin.jpg"
-                        alt="The Assassin"
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </div>
-
-                    <div className="z-10 mt-1">
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="text-lg font-black text-white">Assassin</h4>
-                        <span className="text-xs font-bold text-red-400">มือสังหาร</span>
-                      </div>
-                      <p className="text-[11px] text-red-300/80 font-semibold mb-2">
-                        Silence is worth three acorns.
-                      </p>
-                      <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-red-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> จ่าย 3 สังหารไพ่ 1 ใบ</span>
-                        </div>
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-red-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ไม่สามารถบล็อกได้</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 5. Contessa */}
-                  <div className="bg-[#101622] border border-pink-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-pink-500/70 hover:shadow-[0_0_20px_rgba(236,72,153,0.35)] transition-all duration-300 shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-pink-500/10 pointer-events-none select-none">
-                      C
-                    </span>
-                    <div className="flex items-center justify-between mb-2 z-10">
-                      <span className="text-xs font-black text-pink-400 tracking-widest uppercase">
-                        PROTECT
-                      </span>
-                      <ShieldCheck size={18} className="text-pink-400" />
-                    </div>
-
-                    {/* Authentic Character Portrait */}
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-pink-500/40 shadow-lg bg-pink-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-pink-400 transition-all duration-300">
-                      <img
-                        src="/cards/contessa.jpg"
-                        alt="The Contessa"
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </div>
-
-                    <div className="z-10 mt-1">
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="text-lg font-black text-white">Contessa</h4>
-                        <span className="text-xs font-bold text-pink-400">รัชทายาท</span>
-                      </div>
-                      <p className="text-[11px] text-pink-300/80 font-semibold mb-2">
-                        No dagger touches the royal court.
-                      </p>
-                      <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-pink-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> ไม่มีแอ็กชันโจมตี</span>
-                        </div>
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-pink-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ป้องกันการลอบสังหาร</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 6. Inquisitor */}
-                  <div className="bg-[#101622] border border-purple-500/30 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/70 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] transition-all duration-300 shadow-sm">
-                    <span className="absolute -right-2 -top-4 text-7xl font-black text-purple-500/10 pointer-events-none select-none">
-                      I
-                    </span>
-                    <div className="flex items-center justify-between mb-2 z-10">
-                      <span className="text-xs font-black text-purple-400 tracking-widest uppercase">
-                        INSPECT
-                      </span>
-                      <Search size={18} className="text-purple-400" />
-                    </div>
-
-                    {/* Authentic Character Portrait */}
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-purple-500/40 shadow-lg bg-purple-950/40 my-2 z-10 group-hover:scale-105 group-hover:border-purple-400 transition-all duration-300">
-                      <img
-                        src="/cards/inquisitor.jpg"
-                        alt="The Inquisitor"
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </div>
-
-                    <div className="z-10 mt-1">
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="text-lg font-black text-white">Inquisitor</h4>
-                        <span className="text-xs font-bold text-purple-400">ผู้ตรวจการ</span>
-                      </div>
-                      <p className="text-[11px] text-purple-300/80 font-semibold mb-2">
-                        No secret escapes the vigilant.
-                      </p>
-                      <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-2.5">
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-purple-400 font-bold">•</span>
-                          <span><strong>แอ็กชัน:</strong> แอบดูไพ่คู่แข่ง หรือสลับไพ่</span>
-                        </div>
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-purple-400 font-bold">•</span>
-                          <span><strong>บล็อก:</strong> ป้องกันการขโมยเหรียญ</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
@@ -1052,6 +1016,14 @@ export const MainMenuScreen: React.FC = () => {
           Golden Acorns • UI Clean Edition
         </div>
       </footer>
+
+      {/* Interactive 3D Card Detail Modal */}
+      {selectedInspectRole && (
+        <CardDetailModal
+          role={selectedInspectRole}
+          onClose={() => setSelectedInspectRole(null)}
+        />
+      )}
     </div>
   );
 };
