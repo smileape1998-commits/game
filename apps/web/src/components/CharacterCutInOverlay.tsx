@@ -93,9 +93,26 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
 }) => {
   const [currentCutIn, setCurrentCutIn] = useState<CutInEvent | null>(null);
   const lastProcessedEventId = useRef<string | null>(null);
+  const isModalPhase =
+    publicGameState.phase === 'CHALLENGE_WINDOW' ||
+    publicGameState.phase === 'BLOCK_WINDOW' ||
+    publicGameState.phase === 'BLOCK_CHALLENGE_WINDOW' ||
+    publicGameState.phase === 'INFLUENCE_SELECTION' ||
+    publicGameState.phase === 'EXCHANGE_SELECTION' ||
+    publicGameState.phase === 'INSPECT_CARD_VIEW' ||
+    publicGameState.phase === 'GAME_OVER';
 
-  // 1. Detect new action from history
+  // Dismiss immediately whenever any modal phase begins
   useEffect(() => {
+    if (isModalPhase && currentCutIn) {
+      setCurrentCutIn(null);
+    }
+  }, [isModalPhase, currentCutIn]);
+
+  // 1. Detect new action from history (only when not in modal phase)
+  useEffect(() => {
+    if (isModalPhase) return;
+
     const latestEvent = publicGameState.history[0];
     if (!latestEvent || latestEvent.id === lastProcessedEventId.current) return;
     lastProcessedEventId.current = latestEvent.id;
@@ -188,47 +205,38 @@ export const CharacterCutInOverlay: React.FC<CharacterCutInOverlayProps> = ({
     if (!currentCutIn) return;
     const timer = setTimeout(() => {
       setCurrentCutIn(null);
-    }, 1600); // 1.6 seconds auto-dismiss
+    }, 1400); // 1.4 seconds auto-dismiss
     return () => clearTimeout(timer);
   }, [currentCutIn]);
 
-  const isModalPhase =
-    publicGameState.phase === 'CHALLENGE_WINDOW' ||
-    publicGameState.phase === 'BLOCK_WINDOW' ||
-    publicGameState.phase === 'BLOCK_CHALLENGE_WINDOW';
-
   return (
     <AnimatePresence>
-      {currentCutIn && (
-        <div
-          className={`fixed inset-0 pointer-events-none z-40 flex justify-center overflow-hidden select-none ${
-            isModalPhase ? 'items-start pt-8 sm:pt-12' : 'items-center'
-          }`}
+      {!isModalPhase && currentCutIn && (
+        <div className="fixed inset-0 pointer-events-none z-30 flex items-center justify-center overflow-hidden select-none">
+        {/* Subtle Speed Lines (non-blocking) */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.8 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="absolute inset-0 bg-slate-950/40 pointer-events-none"
         >
-          {/* Subtle Speed Lines (non-blocking) */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.8 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="absolute inset-0 bg-slate-950/40 pointer-events-none"
-          >
-            <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none">
-              <div className="w-[200%] h-full bg-[repeating-linear-gradient(90deg,transparent,transparent_20px,rgba(255,255,255,0.08)_20px,rgba(255,255,255,0.08)_40px)] animate-[pulse_1s_ease-in-out_infinite]" />
-            </div>
-          </motion.div>
+          <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none">
+            <div className="w-[200%] h-full bg-[repeating-linear-gradient(90deg,transparent,transparent_20px,rgba(255,255,255,0.08)_20px,rgba(255,255,255,0.08)_40px)] animate-[pulse_1s_ease-in-out_infinite]" />
+          </div>
+        </motion.div>
 
-          {/* 2.5D Diagonal Cut-In Stage */}
-          <motion.div
-            key={currentCutIn.id}
-            initial={{ x: '-110%', skewX: -10, opacity: 0 }}
-            animate={{ x: '0%', skewX: -10, opacity: 1 }}
-            exit={{ x: '110%', skewX: -10, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-            className="relative w-full max-w-4xl h-56 sm:h-64 my-auto pointer-events-auto cursor-pointer"
-            onClick={() => setCurrentCutIn(null)}
-            title="คลิกเพื่อข้าม"
-          >
+        {/* 2.5D Diagonal Cut-In Stage */}
+        <motion.div
+          key={currentCutIn.id}
+          initial={{ x: '-110%', skewX: -10, opacity: 0 }}
+          animate={{ x: '0%', skewX: -10, opacity: 1 }}
+          exit={{ x: '110%', skewX: -10, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+          className="relative w-full max-w-4xl h-56 sm:h-64 my-auto pointer-events-auto cursor-pointer"
+          onClick={() => setCurrentCutIn(null)}
+          title="คลิกเพื่อข้าม"
+        >
             {/* Main Diagonal Slanted Banner Ribbon */}
             <div
               className={`w-full h-full bg-gradient-to-r ${currentCutIn.themeColor} border-y-4 border-amber-300 shadow-[0_0_50px_rgba(0,0,0,0.85)] flex items-center justify-between px-6 sm:px-12 relative overflow-hidden`}
