@@ -20,6 +20,7 @@ import { GameOverModal } from '../GameOverModal';
 import { EventLogDrawer } from '../EventLogDrawer';
 import { GoldenAcornIcon } from '../CharacterArtwork';
 import { ActionFXOverlay } from '../ActionFXOverlay';
+import { CharacterCutInOverlay } from '../CharacterCutInOverlay';
 import { sounds } from '../../audio/soundEffects';
 import {
   LogOut,
@@ -390,6 +391,19 @@ export const GameplayScreen: React.FC = () => {
           />
         )}
       </AnimatePresence>
+
+      {/* Cinematic Action FX & Flying Acorns/Items */}
+      <ActionFXOverlay
+        publicGameState={state}
+        activeViewerPlayerId={activeViewerPlayerId}
+        onScreenShake={triggerScreenShake}
+      />
+
+      {/* 2.5D Animated Character Action Cut-In Showcase (Hearthstone / Persona style) */}
+      <CharacterCutInOverlay
+        publicGameState={state}
+        activeViewerPlayerId={activeViewerPlayerId}
+      />
     </div>
   );
 };
